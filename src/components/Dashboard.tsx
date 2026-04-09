@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { DashboardStats } from '../types';
 import { dashboardAPI } from '../utils/api';
+import SkeletonLoader, { StatsCardSkeleton, TableSkeleton } from './SkeletonLoader';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -32,8 +33,63 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="p-8 bg-gray-50/30 min-h-screen font-sans">
+        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <SkeletonLoader height="h-12" width="w-48" className="mb-3" />
+            <SkeletonLoader height="h-6" width="w-64" />
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+              <SkeletonLoader height="h-4" width="w-24" className="mb-2" />
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />
+                <SkeletonLoader height="h-8" width="w-20" />
+              </div>
+            </div>
+            <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+              <SkeletonLoader height="h-4" width="w-24" className="mb-2" />
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />
+                <SkeletonLoader height="h-8" width="w-20" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Stats Grid - 4 cards in top row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+        </div>
+
+        {/* Secondary Stats Grid - 3 cards in second row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+          <StatsCardSkeleton />
+        </div>
+
+        {/* Quick Actions Skeleton */}
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
+          <SkeletonLoader height="h-6" width="w-32" className="mb-6" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center justify-center gap-3 p-4 bg-gray-50 rounded-xl">
+              <SkeletonLoader variant="avatar" />
+              <SkeletonLoader height="h-4" width="w-24" />
+            </div>
+            <div className="flex items-center justify-center gap-3 p-4 bg-gray-50 rounded-xl">
+              <SkeletonLoader variant="avatar" />
+              <SkeletonLoader height="h-4" width="w-20" />
+            </div>
+            <div className="flex items-center justify-center gap-3 p-4 bg-gray-50 rounded-xl">
+              <SkeletonLoader variant="avatar" />
+              <SkeletonLoader height="h-4" width="w-28" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -91,18 +147,13 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* Main Stats Grid - 4 cards in top row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         <StatCard
           title="Total Leads"
           value={stats?.totalLeads || 0}
           icon={Users}
           color="bg-blue-500"
-        />
-        <StatCard
-          title="Total Quantity"
-          value={stats?.totalQuantity || 0}
-          icon={ShoppingCart}
-          color="bg-green-500"
         />
         <StatCard
           title="Total Revenue"
@@ -116,9 +167,22 @@ export default function Dashboard() {
           icon={IndianRupee}
           color="bg-orange-500"
         />
+        <StatCard
+          title="Total Investments"
+          value={formatCurrency(stats?.totalInvestmentAmount || 0)}
+          icon={Target}
+          color="bg-teal-500"
+        />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        {/* Secondary Stats Grid - 3 cards in second row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+          <StatCard
+            title="Total Quantity"
+            value={stats?.totalQuantity || 0}
+            icon={ShoppingCart}
+            color="bg-green-500"
+          />
           <StatCard
             title="Total Profit - Investment Amount"
             value={formatCurrency((stats?.totalProfit || 0) - (stats?.totalInvestmentAmount || 0))}

@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit2, Trash2, Phone, Mail, Calendar, Tag, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Download, Upload, AlertTriangle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { Lead } from '../types';
 import { leadsAPI, formConfigAPI } from '../utils/api';
+import * as XLSX from 'xlsx';
 import ConfirmDialog from './ConfirmDialog';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import DynamicFields from './DynamicFields';
 import { DynamicFormField } from '../types/formConfig';
 import { showToast } from '../utils/toast';
-import { isValidEmail, isValidPhone10 } from '../utils/validation';
+import SkeletonLoader, { TableSkeleton, StatsCardSkeleton } from './SkeletonLoader';
+import { isValidPhone10, isValidEmail } from '../utils/validation';
+import { Phone, Mail, Tag, AlertCircle, FileText, CheckCircle, Calendar, Edit2 } from 'lucide-react';
 import DatePickerField from './DatePickerField';
 import SelectField from './SelectField';
 import { openWhatsAppWithTemplate } from '../utils/whatsapp';
@@ -245,8 +248,29 @@ export default function LeadsManagement() {
 
   if (loading && leads.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading leads...</div>
+      <div className="p-8 bg-gray-50/30 min-h-screen font-sans">
+        <div className="mb-6 xs:mb-8 sm:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 xs:gap-6">
+          <div className="min-w-0">
+            <SkeletonLoader height="h-8" width="w-48" className="mb-2" />
+            <SkeletonLoader height="h-4" width="w-64" />
+          </div>
+          <div className="flex items-center gap-2 xs:gap-4">
+            <StatsCardSkeleton />
+            <StatsCardSkeleton />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl xs:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 xs:p-6 mb-6 xs:mb-8">
+          <div className="flex flex-col gap-4 xs:gap-6">
+            <SkeletonLoader height="h-10" />
+            <div className="flex flex-wrap items-center gap-3 xs:gap-4">
+              <SkeletonLoader height="h-10" width="w-32" />
+              <SkeletonLoader height="h-10" width="w-40" />
+            </div>
+          </div>
+        </div>
+
+        <TableSkeleton rows={5} columns={7} />
       </div>
     );
   }
