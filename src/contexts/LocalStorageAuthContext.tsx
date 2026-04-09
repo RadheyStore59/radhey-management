@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { LocalStorageDB } from '../utils/localStorage';
 
 interface User {
   id: string;
@@ -20,40 +19,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function LocalStorageAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for existing user session
-    const currentUser = LocalStorageDB.getCurrentUser();
-    const token = LocalStorageDB.getToken();
+    // Check for existing user session from localStorage
+    const storedUser = localStorage.getItem('user');
+    const storedToken = localStorage.getItem('token');
 
-    // If we have a user but no token, clear the session to avoid 401s.
-    if (currentUser && !token) {
-      LocalStorageDB.logout();
+    // If we have a user but no token, clear the session
+    if (storedUser && !storedToken) {
+      localStorage.removeItem('user');
       setUser(null);
       setLoading(false);
       return;
     }
 
-    setUser(currentUser);
+    if (storedUser && storedToken) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      } catch (error) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        setUser(null);
+        setToken(null);
+      }
+    }
     setLoading(false);
   }, []);
 
   const getApiBaseUrl = () => {
-  if (process.env.REACT_APP_API_URL) {
-    return process.env.REACT_APP_API_URL;
-  }
-  if (process.env.NODE_ENV === 'production') {
-    return `${window.location.origin}/api`;
-  }
-  return 'http://localhost:5000/api';
-};
+    if (process.env.REACT_APP_API_URL) {
+      return process.env.REACT_APP_API_URL;
+    }
+    if (process.env.NODE_ENV === 'production') {
+      return `${window.location.origin}/api`;
+    }
+    return 'http://localhost:5000/api';
+  };
 
-const API_BASE_URL = getApiBaseUrl();
+  const API_BASE_URL = getApiBaseUrl();
 
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
       if (!email || !password) throw new Error('Invalid credentials');
+
+      console.log('Attempting login to:', `${API_BASE_URL}/auth/login`);
+      console.log('Login data:', { email });
 
       const res = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
@@ -61,18 +74,26 @@ const API_BASE_URL = getApiBaseUrl();
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login response status:', res.status);
+
       const data = await res.json().catch(() => null);
+      console.log('Login response data:', data);
+
       if (!res.ok) {
         throw new Error(data?.message || 'Login failed');
       }
 
-      LocalStorageDB.setToken(data.token);
-      LocalStorageDB.setCurrentUser(data.user);
+      // Store user data and token in localStorage for session persistence
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
       setUser(data.user);
+      setToken(data.token);
 
       setLoading(false);
       return { error: null };
     } catch (error: any) {
+      console.error('Login error:', error);
       setLoading(false);
       return { error };
     }
@@ -83,13 +104,20 @@ const API_BASE_URL = getApiBaseUrl();
     try {
       if (!email || !password) throw new Error('Invalid signup data');
 
+      console.log('Attempting signup to:', `${API_BASE_URL}/auth/signup`);
+      console.log('Signup data:', { email });
+
       const res = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Signup response status:', res.status);
+
       const data = await res.json().catch(() => null);
+      console.log('Signup response data:', data);
+
       if (!res.ok) {
         throw new Error(data?.message || 'Signup failed');
       }
@@ -99,6 +127,7 @@ const API_BASE_URL = getApiBaseUrl();
       setLoading(false);
       return loginResult;
     } catch (error: any) {
+      console.error('Signup error:', error);
       setLoading(false);
       return { error };
     }
@@ -106,7 +135,9 @@ const API_BASE_URL = getApiBaseUrl();
 
   const logout = () => {
     setUser(null);
-    LocalStorageDB.logout();
+    setToken(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (

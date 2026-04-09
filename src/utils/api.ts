@@ -193,6 +193,25 @@ export const formConfigAPI = {
     }),
 };
 
+// Users API
+export const usersAPI = {
+  getAll: () => apiRequest('/users'),
+  create: (user: any) => 
+    apiRequest('/users', {
+      method: 'POST',
+      body: JSON.stringify(user),
+    }),
+  updateRole: (userId: string, role: string) => 
+    apiRequest(`/users/${userId}/role`, {
+      method: 'PUT',
+      body: JSON.stringify({ role }),
+    }),
+  delete: (userId: string) => 
+    apiRequest(`/users/${userId}`, {
+      method: 'DELETE',
+    }),
+};
+
 export default {
   salesAPI,
   investmentsAPI,
@@ -202,4 +221,5 @@ export default {
   courierAPI,
   authAPI,
   formConfigAPI,
+  usersAPI,
 };

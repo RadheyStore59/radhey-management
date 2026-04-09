@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import { LocalStorageDB } from '../utils/localStorage';
+import { usersAPI } from '../utils/api';
 import { Settings as SettingsIcon, LogOut, Users, Database, Download, Trash2, Plus, ChevronRight } from 'lucide-react';
 import ConfirmDialog from './ConfirmDialog';
 import FormBuilderSettings from './FormBuilderSettings';
@@ -66,14 +67,13 @@ export default function Settings() {
         throw new Error('Password must be at least 6 characters');
       }
       if (userForm.email && userForm.password) {
-        LocalStorageDB.addUser({
+        await usersAPI.create({
           email: userForm.email,
           password: userForm.password,
           role: userForm.role,
         });
 
-        const allUsers = LocalStorageDB.getUsers();
-        setUsers(allUsers);
+        await fetchUsers();
         
         setShowUserForm(false);
         setUserForm({ email: '', password: '', role: 'Staff' });
@@ -92,7 +92,7 @@ export default function Settings() {
 
   const handleUpdateUser = async (userId: string, newRole: 'Admin' | 'Staff') => {
     try {
-      LocalStorageDB.updateUser(userId, { role: newRole });
+      await usersAPI.updateRole(userId, newRole);
       await fetchUsers();
       showToast('User role updated successfully.', 'success');
     } catch (error: any) {
@@ -106,7 +106,7 @@ export default function Settings() {
     setConfirmMessage('Are you sure you want to delete this user?');
     setConfirmAction(() => async () => {
       try {
-        LocalStorageDB.deleteUser(userId);
+        await usersAPI.delete(userId);
         await fetchUsers();
         showToast('User deleted successfully.', 'success');
       } catch (error: any) {
@@ -121,7 +121,7 @@ export default function Settings() {
 
   const fetchUsers = async () => {
     try {
-      const allUsers = LocalStorageDB.getUsers();
+      const allUsers = await usersAPI.getAll();
       setUsers(allUsers);
     } catch (error) {
       console.error('Fetch users failed:', error);
