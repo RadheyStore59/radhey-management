@@ -19,6 +19,6 @@ services:
       - key: NODE_OPTIONS
         value: "--max-old-space-size=4096"
       - key: MONGODB_URI
-        value: mongodb://localhost:27017/radhey-management
+        value: mongodb+srv://your_username:your_password@your_cluster.mongodb.net/radhey-management?retryWrites=true&w=majority
       - key: JWT_SECRET
-        value: your_jwt_secret_key_here
+        value: your_jwt_secret_key_here_change_this_in_production
