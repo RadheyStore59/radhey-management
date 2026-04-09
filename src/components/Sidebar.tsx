@@ -30,7 +30,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'leads', label: 'Leads', icon: Users, path: '/leads' },
     { id: 'sales', label: 'Sales', icon: TrendingUp, path: '/sales' },
-    { id: 'investment', label: 'Investment', icon: Target, path: '/inventory' },
+    { id: 'investment', label: 'Investment', icon: Target, path: '/investments' },
     { id: 'gst', label: 'GST Monthly Filing', icon: FileText, path: '/gst' },
     { id: 'courier', label: 'Courier Cost', icon: Package, path: '/courier' },
   ];

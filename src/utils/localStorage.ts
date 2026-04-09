@@ -6,7 +6,8 @@ const STORAGE_KEYS = {
   SALES: 'radhey_sales', 
   INVENTORY: 'radhey_inventory',
   USERS: 'radhey_users',
-  CURRENT_USER: 'radhey_current_user'
+  CURRENT_USER: 'radhey_current_user',
+  WHATSAPP_TEMPLATES: 'radhey_whatsapp_templates',
 };
 
 export class LocalStorageDB {
@@ -151,5 +152,61 @@ export class LocalStorageDB {
       totalInvestmentAmount: 0, // Add logic if needed
       activeLeads: leads.filter(lead => lead.status === 'New' || lead.status === 'Contacted').length
     };
+  }
+
+  static getWhatsAppTemplates() {
+    const templates = localStorage.getItem(STORAGE_KEYS.WHATSAPP_TEMPLATES);
+    return templates ? JSON.parse(templates) : {
+      leads: '',
+      sales: '',
+      default: ''
+    };
+  }
+
+  static saveWhatsAppTemplates(templates: any): void {
+    localStorage.setItem(STORAGE_KEYS.WHATSAPP_TEMPLATES, JSON.stringify(templates));
+  }
+
+  static addUser(user: any): void {
+    const users = this.getUsers();
+    const newUser = { ...user, id: crypto.randomUUID(), created_at: new Date().toISOString() };
+    users.push(newUser);
+    this.saveUsers(users);
+  }
+
+  static updateUser(id: string, updates: Partial<any>): void {
+    const users = this.getUsers();
+    const index = users.findIndex(user => user.id === id);
+    if (index !== -1) {
+      users[index] = { ...users[index], ...updates };
+      this.saveUsers(users);
+    }
+  }
+
+  static deleteUser(id: string): void {
+    const users = this.getUsers();
+    const filtered = users.filter(user => user.id !== id);
+    this.saveUsers(filtered);
+  }
+
+  static getInvestments(): any[] {
+    const data = localStorage.getItem('radhey_investments');
+    return data ? JSON.parse(data) : [];
+  }
+
+  static saveInvestments(investments: any[]): void {
+    localStorage.setItem('radhey_investments', JSON.stringify(investments));
+  }
+
+  static getToken(): string | null {
+    return localStorage.getItem('radhey_auth_token');
+  }
+
+  static setToken(token: string): void {
+    localStorage.setItem('radhey_auth_token', token);
+  }
+
+  static clearToken(): void {
+    localStorage.removeItem('radhey_auth_token');
   }
 }

@@ -62,17 +62,24 @@ export default function LeadsManagement() {
 
   const mapLeadFromApi = (lead: any): Lead => ({
     id: lead._id || lead.id,
-    lead_name: lead.contact_name || '',
-    product: lead.product_requirement || '',
-    mobile_number: lead.phone_no || '',
+    lead_name: lead.contact_name || lead.lead_name || '',
+    product: lead.product_requirement || lead.product || '',
+    mobile_number: lead.phone_no || lead.mobile_number || '',
     email: lead.email || '',
+    address: lead.address || '',
     lead_source: lead.lead_source || '',
     status: lead.status || 'New',
     notes: lead.notes || '',
-    date: lead.lead_date || new Date().toISOString().split('T')[0],
+    date: lead.lead_date || lead.date || new Date().toISOString().split('T')[0],
     created_at: lead.created_at || new Date().toISOString(),
-    user_id: lead.user_id || '',
+    user_id: lead.user_id || 'current-user',
     custom_fields: lead.custom_fields || {},
+    contact_name: lead.contact_name || '',
+    company_name: lead.company_name || '',
+    product_requirement: lead.product_requirement || '',
+    quantity: lead.quantity || 0,
+    budget: lead.budget || '',
+    customization: lead.customization || ''
   });
 
   const mapLeadToApi = (lead: typeof formData) => ({

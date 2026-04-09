@@ -10,6 +10,14 @@ export interface Lead {
   date: string;
   created_at: string;
   user_id: string;
+  product: string;
+  contact_name: string;
+  company_name: string;
+  product_requirement: string;
+  quantity: number;
+  budget: string;
+  customization: string;
+  custom_fields?: Record<string, any>;
 }
 
 export interface Sale {
@@ -37,6 +45,7 @@ export interface Sale {
   remarks: string;
   created_at: string;
   user_id: string;
+  phase?: 'Order Taken' | 'In Process' | 'Order Ready' | 'Dispatched' | 'Delivered';
 }
 
 export interface Inventory {
@@ -98,6 +107,22 @@ export interface Courier {
   delivery_date?: string;
   weight?: string;
   cost?: string;
+  created_at: string;
+  user_id: string;
+}
+
+export interface Investment {
+  id: string;
+  sr_no: string;
+  date: string;
+  vendor_name: string;
+  particular: string;
+  unit: number;
+  total: number;
+  payment_through: string;
+  payment_by: string;
+  status: 'Pending' | 'Completed' | 'Cancelled' | 'Refunded';
+  remarks: string;
   created_at: string;
   user_id: string;
 }
