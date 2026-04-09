@@ -363,7 +363,10 @@ export default function Settings() {
               <div className="border rounded-xl p-4 mb-6">
                 <h4 className="font-medium text-slate-900 mb-3">WhatsApp Message Templates</h4>
                 <p className="text-sm text-slate-600 mb-4">
-                  Use placeholders: {'{{customerName}}'}, {'{{productName}}'}, {'{{orderId}}'}, {'{{phase}}'}, {'{{phaseMessage}}'}, {'{{phone}}'}
+                  Placeholders: {'{{customerName}}'}, {'{{productName}}'}, {'{{phaseMessage}}'} (sales — text for current phase), {'{{phase}}'}, {'{{orderId}}'}, {'{{phone}}'}, {'{{brand}}'} (e.g. Radhey Personlized Gifts).
+                  <span className="block mt-2 text-slate-500">
+                    Sales layout example: Hello → product line → phase message → brand line. Use line breaks for WhatsApp.
+                  </span>
                 </p>
                 <div className="space-y-4">
                   <div>
@@ -446,65 +449,6 @@ export default function Settings() {
                   >
                     <Download className="w-5 h-5" />
                     Export Investments
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
-              <div className="border rounded-xl p-4">
-                <h4 className="font-medium text-red-800 mb-3">Clear Data</h4>
-                <p className="text-sm text-red-600 mb-4">
-                  ⚠️ Danger zone: This will permanently delete all data from the selected table.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => {
-                      setConfirmTitle('Clear Leads');
-                      setConfirmMessage('Are you sure you want to clear all leads data? This action cannot be undone.');
-                      setConfirmAction(() => () => {
-                        LocalStorageDB.saveLeads([]);
-                        showToast('Leads data cleared successfully.', 'success');
-                        setConfirmOpen(false);
-                      });
-                      setConfirmOpen(true);
-                    }}
-                    className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 flex items-center gap-2 transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                    Clear Leads
-                  </button>
-                  <button
-                    onClick={() => {
-                      setConfirmTitle('Clear Sales');
-                      setConfirmMessage('Are you sure you want to clear all sales data? This action cannot be undone.');
-                      setConfirmAction(() => () => {
-                        LocalStorageDB.saveSales([]);
-                        showToast('Sales data cleared successfully.', 'success');
-                        setConfirmOpen(false);
-                      });
-                      setConfirmOpen(true);
-                    }}
-                    className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 flex items-center gap-2 transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                    Clear Sales
-                  </button>
-                  <button
-                    onClick={() => {
-                      setConfirmTitle('Clear Investments');
-                      setConfirmMessage('Are you sure you want to clear all investments data? This action cannot be undone.');
-                      setConfirmAction(() => () => {
-                        LocalStorageDB.saveInvestments([]);
-                        showToast('Investments data cleared successfully.', 'success');
-                        setConfirmOpen(false);
-                      });
-                      setConfirmOpen(true);
-                    }}
-                    className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 flex items-center gap-2 transition-colors"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                    Clear Investments
                   </button>
                 </div>
               </div>

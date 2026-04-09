@@ -12,6 +12,8 @@ export const normalizeWhatsAppPhone = (raw: string, countryCode = '91') => {
   return `${countryCode}${last10}`;
 };
 
+const DEFAULT_BRAND = 'Radhey Personlized Gifts';
+
 const fillTemplate = (template: string, vars: Record<string, string>) =>
   template
     .replace(/\{\{customerName\}\}/g, vars.customerName || '')
@@ -19,7 +21,8 @@ const fillTemplate = (template: string, vars: Record<string, string>) =>
     .replace(/\{\{productName\}\}/g, vars.productName || '')
     .replace(/\{\{phase\}\}/g, vars.phase || '')
     .replace(/\{\{phaseMessage\}\}/g, vars.phaseMessage || '')
-    .replace(/\{\{phone\}\}/g, vars.phone || '');
+    .replace(/\{\{phone\}\}/g, vars.phone || '')
+    .replace(/\{\{brand\}\}/g, vars.brand || DEFAULT_BRAND);
 
 const getPhaseMessage = (phase?: string) => {
   const value = (phase || '').toLowerCase().trim();
@@ -31,56 +34,108 @@ const getPhaseMessage = (phase?: string) => {
   return 'Your order status has been updated.';
 };
 
-const ensureSalesPhaseDynamic = (message: string, phase?: string) => {
-  const finalPhase = phase || 'Order Taken';
-  const phaseMessage = getPhaseMessage(finalPhase);
-  const hasPhaseInfo =
-    message.includes('{{phase}}') ||
-    message.includes('{{phaseMessage}}');
+/** Every standardized phase sentence we inject — used to strip duplicates / old template text */
+const ALL_PHASE_SENTENCES = [
+  'Your order has been delivered successfully.',
+  'Your order has been received successfully.',
+  'Your order is currently in process.',
+  'Great news! Your order is ready.',
+  'Your order has been dispatched.',
+  'Your order status has been updated.',
+];
 
-  if (hasPhaseInfo) return message;
+/** Only append auto line if the raw template did not already use placeholders (after fill, {{…}} is gone). */
+const ensureSalesPhaseDynamic = (rawTemplate: string, message: string, phase?: string) => {
+  const hasPlaceholder =
+    rawTemplate.includes('{{phase}}') || rawTemplate.includes('{{phaseMessage}}');
+  if (hasPlaceholder) return message;
 
+  const phaseMessage = getPhaseMessage(phase || 'Order Taken');
   return `${message}\n${phaseMessage}`;
 };
 
+/** Turn cramped one-line sales text into WhatsApp-friendly paragraphs. */
 const formatSalesMessageLayout = (message: string) => {
   let formatted = message.replace(/\r\n/g, '\n').trim();
+  formatted = formatted.replace(/Radhey Management/gi, DEFAULT_BRAND);
 
-  // If user saved a one-line template, make it readable in WhatsApp.
+  // Templates often use "product:" — always show proper "Product:" in the message
+  formatted = formatted.replace(/(^|[\n,])\s*product(\s*:)/gi, '$1Product$2');
+
+  // Greeting → Product (comma then Product:)
+  formatted = formatted.replace(/,\s*(Product\s*:)/gi, ',\n\n$1');
+
+  // Product line → phase sentence (longer phrases first so regex matches correctly)
+  const phaseAlternation = [...ALL_PHASE_SENTENCES]
+    .sort((a, b) => b.length - a.length)
+    .map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const beforePhase = new RegExp(`(Product\\s*:\\s*[^\\n]+?)\\s+(${phaseAlternation})`, 'gi');
+  formatted = formatted.replace(beforePhase, '$1\n\n$2');
+
+  // Phase / last sentence → brand line
+  const brandEsc = DEFAULT_BRAND.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  formatted = formatted.replace(
+    new RegExp(`([.!?])\\s+(${brandEsc})`, 'gi'),
+    '$1\n\n$2'
+  );
+
+  // Product name on its own line (reads clearer in WhatsApp)
+  formatted = formatted.replace(/\bProduct\s*:\s*([^\n]+)/gi, (_full, name: string) => {
+    const n = String(name).trim();
+    return n ? `Product:\n${n}` : 'Product:';
+  });
+
+  formatted = formatted.replace(/\n{3,}/g, '\n\n');
+
   if (!formatted.includes('\n')) {
     formatted = formatted
-      .replace(/\s+Product:/i, '\nProduct:')
+      .replace(/\s+Product:/i, '\n\nProduct:')
       .replace(/\s+Thank you for choosing/i, '\n\nThank you for choosing');
   }
 
-  return formatted.replace(/Radhey Management/gi, 'Radhey Personlized Gifts');
+  return formatted.trim();
 };
 
-const cleanSalesMessage = (message: string, phase?: string) => {
-  let cleaned = message;
-  const phaseMessage = getPhaseMessage(phase || 'Order Taken');
+/** When template already uses {{phaseMessage}}, only light cleanup so layout stays customized. */
+const cleanSalesMessage = (message: string, phase: string | undefined, rawTemplate: string) => {
+  let cleaned = message.replace(/\r\n/g, '\n');
 
-  // Remove explicit "Status: ..." text even if user template has it.
   cleaned = cleaned.replace(/\s*Status:\s*[^\n]+/gi, '');
+  cleaned = cleaned.replace(/Radhey Management/gi, DEFAULT_BRAND);
 
-  // Remove duplicate phase sentence (keep first occurrence).
-  const escaped = phaseMessage.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const phaseRegex = new RegExp(escaped, 'gi');
-  let seen = false;
-  cleaned = cleaned.replace(phaseRegex, (match) => {
-    if (seen) return '';
-    seen = true;
-    return match;
-  });
+  const usesPhasePlaceholder =
+    rawTemplate.includes('{{phaseMessage}}') || rawTemplate.includes('{{phase}}');
 
-  // Normalize extra spaces/newlines created by cleanup.
+  if (usesPhasePlaceholder) {
+    return cleaned
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .replace(/  +/g, ' ')
+      .trim();
+  }
+
+  // Legacy templates without phase placeholders: one phase line, no duplicates
+  const phaseMessage = getPhaseMessage(phase || 'Order Taken');
+  for (const sentence of ALL_PHASE_SENTENCES) {
+    const escaped = sentence.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    cleaned = cleaned.replace(new RegExp(escaped, 'gi'), '');
+  }
+
   cleaned = cleaned
     .replace(/[ \t]+\n/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .replace(/  +/g, ' ')
     .trim();
 
-  return cleaned;
+  const thankYouRe = /(\nThank you for choosing)/i;
+  if (thankYouRe.test(cleaned)) {
+    cleaned = cleaned.replace(thankYouRe, `\n${phaseMessage}$1`);
+  } else {
+    cleaned = `${cleaned}\n${phaseMessage}`;
+  }
+
+  return cleaned.trim();
 };
 
 export const openWhatsAppWithTemplate = ({
@@ -114,11 +169,13 @@ export const openWhatsAppWithTemplate = ({
     phase,
     phaseMessage,
     phone: normalizedPhone,
+    brand: DEFAULT_BRAND,
   });
   if (module === 'sales') {
-    message = ensureSalesPhaseDynamic(message, phase);
+    message = ensureSalesPhaseDynamic(template, message, phase);
     message = formatSalesMessageLayout(message);
-    message = cleanSalesMessage(message, phase);
+    message = cleanSalesMessage(message, phase, template);
+    message = formatSalesMessageLayout(message);
   }
 
   const whatsappUrl = `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;

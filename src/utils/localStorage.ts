@@ -155,12 +155,23 @@ export class LocalStorageDB {
   }
 
   static getWhatsAppTemplates() {
-    const templates = localStorage.getItem(STORAGE_KEYS.WHATSAPP_TEMPLATES);
-    return templates ? JSON.parse(templates) : {
-      leads: '',
-      sales: '',
-      default: ''
+    const defaults = {
+      leads:
+        'Hello {{customerName}},\n\nWe received your enquiry.\nOur team will contact you shortly.\n\n{{brand}}',
+      sales:
+        'Hello {{customerName}},\n\nProduct:\n{{productName}}\n\n{{phaseMessage}}\n\n{{brand}}',
     };
+    const raw = localStorage.getItem(STORAGE_KEYS.WHATSAPP_TEMPLATES);
+    if (!raw) return defaults;
+    try {
+      const parsed = JSON.parse(raw);
+      return {
+        leads: typeof parsed?.leads === 'string' && parsed.leads.trim() ? parsed.leads : defaults.leads,
+        sales: typeof parsed?.sales === 'string' && parsed.sales.trim() ? parsed.sales : defaults.sales,
+      };
+    } catch {
+      return defaults;
+    }
   }
 
   static saveWhatsAppTemplates(templates: any): void {
