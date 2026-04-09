@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Download, Upload, AlertTriangle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Download, Upload, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Investment } from '../types';
 import { investmentsAPI, formConfigAPI } from '../utils/api';
 import * as XLSX from 'xlsx';
@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/LocalStorageAuthContext';
 import DynamicFields from './DynamicFields';
 import { DynamicFormField } from '../types/formConfig';
 import { showToast } from '../utils/toast';
+import SkeletonLoader, { TableSkeleton } from './SkeletonLoader';
 import DatePickerField from './DatePickerField';
 
 // Helper for date formatting to ensure consistency
@@ -389,8 +390,20 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
   if (loading && investments.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading investments...</div>
+      <div className="p-6">
+        <div className="mb-6">
+          <SkeletonLoader height="h-8" width="w-48" className="mb-4" />
+          <SkeletonLoader height="h-4" width="w-64" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
+              <SkeletonLoader height="h-4" width="w-20" className="mb-2" />
+              <SkeletonLoader height="h-8" width="w-28" />
+            </div>
+          ))}
+        </div>
+        <TableSkeleton rows={8} columns={6} />
       </div>
     );
   }

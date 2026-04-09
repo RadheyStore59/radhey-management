@@ -12,6 +12,7 @@ import { isValidPhone10 } from '../utils/validation';
 import DatePickerField from './DatePickerField';
 import SelectField from './SelectField';
 import { openWhatsAppWithTemplate } from '../utils/whatsapp';
+import SkeletonLoader, { TableSkeleton } from './SkeletonLoader';
 
 // Helper for date formatting to ensure consistency
 const formatDateForDisplay = (dateStr: any) => {
@@ -594,8 +595,20 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
   if (loading && sales.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading sales...</div>
+      <div className="p-6">
+        <div className="mb-6">
+          <SkeletonLoader height="h-8" width="w-48" className="mb-4" />
+          <SkeletonLoader height="h-4" width="w-64" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
+              <SkeletonLoader height="h-4" width="w-20" className="mb-2" />
+              <SkeletonLoader height="h-8" width="w-28" />
+            </div>
+          ))}
+        </div>
+        <TableSkeleton rows={8} columns={7} />
       </div>
     );
   }

@@ -57,6 +57,48 @@ router.post('/', requireAdmin, async (req, res) => {
   }
 });
 
+// Update user details (Admin only)
+router.put('/:userId', requireAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { email, role, password } = req.body;
+    
+    const updateData = {};
+    
+    if (email) {
+      const normalizedEmail = String(email).toLowerCase().trim();
+      // Check if email already exists for another user
+      const existing = await User.findOne({ email: normalizedEmail });
+      if (existing && existing.id !== userId) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+      updateData.email = normalizedEmail;
+    }
+    
+    if (role) {
+      updateData.role = role === 'Admin' ? 'Admin' : 'Staff';
+    }
+    
+    if (password && password.length >= 6) {
+      updateData.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    const updated = await User.findOneAndUpdate(
+      { id: userId },
+      updateData,
+      { new: true }
+    ).select('_id id email role created_at');
+
+    if (!updated) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // Update user role (Admin only)
 router.put('/:userId/role', requireAdmin, async (req, res) => {
   try {

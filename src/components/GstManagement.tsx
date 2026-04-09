@@ -9,6 +9,7 @@ import { DynamicFormField } from '../types/formConfig';
 import { showToast } from '../utils/toast';
 import DatePickerField from './DatePickerField';
 import SelectField from './SelectField';
+import SkeletonLoader, { TableSkeleton } from './SkeletonLoader';
 
 export default function GstManagement() {
   const [gstRecords, setGstRecords] = useState<Gst[]>([]);
@@ -228,6 +229,26 @@ export default function GstManagement() {
     };
     reader.readAsBinaryString(file);
   };
+
+  if (loading && gstRecords.length === 0) {
+    return (
+      <div className="p-6">
+        <div className="mb-6">
+          <SkeletonLoader height="h-8" width="w-48" className="mb-4" />
+          <SkeletonLoader height="h-4" width="w-64" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
+              <SkeletonLoader height="h-4" width="w-16" className="mb-2" />
+              <SkeletonLoader height="h-8" width="w-24" />
+            </div>
+          ))}
+        </div>
+        <TableSkeleton rows={8} columns={7} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-gray-50/30 min-h-screen font-sans">

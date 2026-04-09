@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { User, Settings as SettingsIcon, Users as UsersIcon, Layout, Shield, LogOut, Save, Plus, Trash2, Edit2, Phone, Database, ChevronRight, Download, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import { LocalStorageDB } from '../utils/localStorage';
 import { usersAPI } from '../utils/api';
-import { Settings as SettingsIcon, LogOut, Users, Database, Download, Trash2, Plus, ChevronRight } from 'lucide-react';
-import ConfirmDialog from './ConfirmDialog';
-import FormBuilderSettings from './FormBuilderSettings';
 import { showToast } from '../utils/toast';
+import ConfirmDialog from './ConfirmDialog';
+import SkeletonLoader, { CardSkeleton } from './SkeletonLoader';
+import FormBuilderSettings from './FormBuilderSettings';
 import { isValidEmail } from '../utils/validation';
 import SelectField from './SelectField';
 
@@ -27,6 +28,7 @@ export default function Settings() {
   const [confirmTitle, setConfirmTitle] = useState('Confirm Action');
   const [confirmMessage, setConfirmMessage] = useState('');
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [userForm, setUserForm] = useState({
     email: '',
     password: '',
@@ -63,30 +65,56 @@ export default function Settings() {
       if (!isValidEmail(userForm.email)) {
         throw new Error('Please enter a valid email address');
       }
-      if (!userForm.password || userForm.password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
-      }
-      if (userForm.email && userForm.password) {
-        await usersAPI.create({
-          email: userForm.email,
-          password: userForm.password,
-          role: userForm.role,
-        });
 
+      if (editingUser) {
+        // Update existing user
+        const updateData: any = {
+          email: userForm.email,
+          role: userForm.role,
+        };
+        
+        // Only update password if provided
+        if (userForm.password && userForm.password.length >= 6) {
+          updateData.password = userForm.password;
+        }
+
+        await usersAPI.update(editingUser.id, updateData);
+        
         await fetchUsers();
         
         setShowUserForm(false);
         setUserForm({ email: '', password: '', role: 'Staff' });
         setEditingUser(null);
         setLoading(false);
-        showToast('User created successfully.', 'success');
+        showToast('User updated successfully.', 'success');
       } else {
-        throw new Error('Email and password are required');
+        // Create new user
+        if (!userForm.password || userForm.password.length < 6) {
+          throw new Error('Password must be at least 6 characters');
+        }
+        
+        if (userForm.email && userForm.password) {
+          await usersAPI.create({
+            email: userForm.email,
+            password: userForm.password,
+            role: userForm.role,
+          });
+
+          await fetchUsers();
+          
+          setShowUserForm(false);
+          setUserForm({ email: '', password: '', role: 'Staff' });
+          setEditingUser(null);
+          setLoading(false);
+          showToast('User created successfully.', 'success');
+        } else {
+          throw new Error('Email and password are required');
+        }
       }
     } catch (error: any) {
-      console.error('Error creating user:', error);
+      console.error('Error saving user:', error);
       setLoading(false);
-      showToast(error.message || 'Failed to create user', 'error');
+      showToast(error.message || 'Failed to save user', 'error');
     }
   };
 
@@ -178,7 +206,7 @@ export default function Settings() {
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                 }`}
               >
-                <Users className="w-5 h-5" />
+                <UsersIcon className="w-5 h-5" />
                 Users
               </button>
             )}
@@ -302,7 +330,7 @@ export default function Settings() {
                     <tr>
                       <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
                         <div className="flex flex-col items-center">
-                          <Users className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+                          <UsersIcon className="w-12 h-12 mx-auto mb-4 text-slate-300" />
                           <p>No users found</p>
                           <p className="text-sm mt-2">Click "Add User" to create your first user</p>
                         </div>
@@ -326,10 +354,26 @@ export default function Settings() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => {
+                                setUserForm({
+                                  email: userItem.email,
+                                  password: '',
+                                  role: userItem.role,
+                                });
+                                setEditingUser(userItem);
+                                setShowUserForm(true);
+                              }}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Edit user"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
                                 const newRole = userItem.role === 'Admin' ? 'Staff' : 'Admin';
                                 handleUpdateUser(userItem.id, newRole);
                               }}
                               className="text-blue-600 hover:text-blue-900"
+                              title="Toggle role"
                             >
                               <ChevronRight className="w-4 h-4" />
                             </button>
@@ -501,17 +545,28 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
-                    <input
-                      type="password"
-                      required
-                      minLength={6}
-                      title="Password must be at least 6 characters"
-                      value={userForm.password}
-                      onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Enter password"
-                    />
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Password {editingUser && <span className="text-slate-400 font-normal">(leave empty to keep current)</span>}
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required={!editingUser}
+                        minLength={editingUser ? undefined : 6}
+                        title={editingUser ? '' : 'Password must be at least 6 characters'}
+                        value={userForm.password}
+                        onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                        placeholder={editingUser ? 'Enter new password (optional)' : 'Enter password'}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Role</label>

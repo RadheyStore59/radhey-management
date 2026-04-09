@@ -201,6 +201,11 @@ export const usersAPI = {
       method: 'POST',
       body: JSON.stringify(user),
     }),
+  update: (userId: string, userData: any) => 
+    apiRequest(`/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData),
+    }),
   updateRole: (userId: string, role: string) => 
     apiRequest(`/users/${userId}/role`, {
       method: 'PUT',
