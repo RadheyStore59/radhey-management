@@ -38,7 +38,17 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
     setLoading(false);
   }, []);
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const getApiBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    return `${window.location.origin}/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
   const login = async (email: string, password: string) => {
     setLoading(true);
