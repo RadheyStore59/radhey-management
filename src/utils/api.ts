@@ -2,9 +2,17 @@
 import { LocalStorageDB } from './localStorage';
 
 // API utility functions to replace LocalStorageDB
-const API_BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  (process.env.NODE_ENV === 'production' ? `${window.location.origin}/api` : 'http://localhost:5000/api');
+const getApiBaseUrl = () => {
+  if (process.env.REACT_APP_API_URL) {
+    return process.env.REACT_APP_API_URL;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    return `${window.location.origin}/api`;
+  }
+  return 'http://localhost:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Generic API request wrapper
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
