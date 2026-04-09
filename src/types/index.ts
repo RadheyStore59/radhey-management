@@ -61,6 +61,47 @@ export interface User {
   created_at: string;
 }
 
+export interface Gst {
+  id: string;
+  filing_month: string;
+  filing_year: string;
+  turnover?: string;
+  tax_paid: string;
+  due_date: string;
+  filing_date: string;
+  status: 'Pending' | 'Filed' | 'Late Filed' | 'Not Filed';
+  remarks: string;
+  created_at: string;
+  user_id: string;
+}
+
+export interface Courier {
+  id: string;
+  date: string;
+  vendor_name: string;
+  particular: string;
+  unit: string;
+  total: string;
+  payment_through: string;
+  payment_by: string;
+  status: 'Pending' | 'Completed' | 'Cancelled' | 'Refunded';
+  remarks: string;
+  tracking_number?: string;
+  courier_company?: string;
+  sender_name?: string;
+  sender_phone?: string;
+  sender_address?: string;
+  recipient_name?: string;
+  recipient_phone?: string;
+  recipient_address?: string;
+  shipment_date?: string;
+  delivery_date?: string;
+  weight?: string;
+  cost?: string;
+  created_at: string;
+  user_id: string;
+}
+
 export interface DashboardStats {
   totalLeads: number;
   totalSales: number;
@@ -68,6 +109,9 @@ export interface DashboardStats {
   totalProfit: number;
   totalInventoryItems: number;
   lowStockItems: number;
+  totalQuantity: number;
+  totalInvestmentAmount: number;
+  activeLeads: number;
 }
 
 export interface SidebarItem {

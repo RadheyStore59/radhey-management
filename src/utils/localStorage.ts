@@ -146,7 +146,10 @@ export class LocalStorageDB {
       totalRevenue,
       totalProfit,
       totalInventoryItems: inventory.length,
-      lowStockItems
+      lowStockItems,
+      totalQuantity: sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0),
+      totalInvestmentAmount: 0, // Add logic if needed
+      activeLeads: leads.filter(lead => lead.status === 'New' || lead.status === 'Contacted').length
     };
   }
 }
