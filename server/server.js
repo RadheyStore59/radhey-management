@@ -2,7 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
+// Load env from server/ even when cwd is repo root (Render, `node server/server.js`)
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -37,9 +38,15 @@ app.get('/api/health', (req, res) => {
 });
 
 // Serve React build for single-service deployment
-app.use(express.static(path.join(__dirname, '../build')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
+const buildDir = path.join(__dirname, '../build');
+app.use(express.static(buildDir));
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ message: 'Not found' });
+  }
+  res.sendFile(path.join(buildDir, 'index.html'), (err) => {
+    if (err) next(err);
+  });
 });
 
 // Error handling middleware

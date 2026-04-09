@@ -26,8 +26,11 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "react-scripts start",
-    "build": "npm install && NODE_OPTIONS=--max-old-space-size=4096 react-scripts build",
+    "postinstall": "npm install --prefix server",
+    "start": "node server/server.js",
+    "start:client": "react-scripts start",
+    "build": "react-scripts build",
+    "build:render": "npm run build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "install:clean": "rm -rf node_modules && npm install",
