@@ -7,17 +7,30 @@ import ConfirmDialog from './ConfirmDialog';
 import { showToast } from '../utils/toast';
 import SelectField from './SelectField';
 
+interface InventoryItem {
+  id?: string;
+  product_name: string;
+  product_code: string;
+  category: string;
+  purchase_price: number;
+  selling_price: number;
+  stock_quantity: number;
+  minimum_stock_level: number;
+  supplier_name: string;
+  last_updated_date: string;
+}
+
 export default function InventoryManagement() {
-  const [inventory, setInventory] = useState<Inventory[]>([]);
-  const [filteredInventory, setFilteredInventory] = useState<Inventory[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [filteredInventory, setFilteredInventory] = useState<InventoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<Inventory | null>(null);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<Inventory | null>(null);
+  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -117,7 +130,7 @@ export default function InventoryManagement() {
     }
   };
 
-  const handleEdit = (item: Inventory) => {
+  const handleEdit = (item: InventoryItem) => {
     setEditingItem(item);
     setFormData({
       product_name: item.product_name,
@@ -262,28 +275,28 @@ export default function InventoryManagement() {
     return Array.from(new Set(inventory.map(item => item.category)));
   };
 
-  const isLowStock = (item: Inventory) => {
+  const isLowStock = (item: InventoryItem) => {
     return item.stock_quantity <= item.minimum_stock_level;
   };
 
   if (loading && inventory.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Loading inventory...</div>
+      <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-screen">
+        <div className="text-base sm:text-lg">Loading inventory...</div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Inventory Management</h1>
-        <p className="text-gray-600 mt-2">Manage your products and track stock levels</p>
+    <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2">Inventory Management</h1>
+        <p className="text-slate-500 font-medium text-base sm:text-lg mt-2">Manage your products and track stock levels</p>
       </div>
 
       {/* Low Stock Alert */}
       {inventory.filter(isLowStock).length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-xl p-4 mb-6">
           <div className="flex items-center">
             <AlertTriangle className="text-red-500 mr-3" size={20} />
             <div>
@@ -297,20 +310,20 @@ export default function InventoryManagement() {
       )}
 
       {/* Search and Filter Bar */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4">
+      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 sm:p-6 mb-6">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" size={20} />
             <input
               type="text"
               placeholder="Search inventory by name, code, or category..."
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-12 pr-4 py-3 bg-slate-50/50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 focus:bg-white transition-all text-sm font-medium"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           
-          <div className="min-w-[200px]">
+          <div className="min-w-[180px] sm:min-w-[200px]">
             <SelectField
               value={categoryFilter}
               onChange={setCategoryFilter}
@@ -322,21 +335,21 @@ export default function InventoryManagement() {
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:gap-3">
             <button
               onClick={exportToExcel}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:from-green-600 hover:to-emerald-700 flex items-center gap-2 text-sm"
             >
               <Download size={20} />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </button>
             
             <button
               onClick={() => setShowImportModal(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2"
+              className="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-700 flex items-center gap-2 text-sm"
             >
               <Upload size={20} />
-              Import
+              <span className="hidden sm:inline">Import</span>
             </button>
 
             <button
@@ -345,17 +358,17 @@ export default function InventoryManagement() {
                 setEditingItem(null);
                 resetForm();
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 flex items-center gap-2 text-sm"
             >
               <Plus size={20} />
-              Add Item
+              <span className="hidden sm:inline">Add Item</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* Inventory Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-slate-100">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -443,7 +456,7 @@ export default function InventoryManagement() {
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => setDeleteItemId(item.id)}
+                        onClick={() => setDeleteItemId(item.id || null)}
                         className="text-red-600 hover:text-red-900"
                       >
                         <Trash2 size={16} />
@@ -608,7 +621,7 @@ export default function InventoryManagement() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50"
                 >
                   {loading ? 'Saving...' : (editingItem ? 'Update' : 'Save')}
                 </button>
@@ -620,9 +633,9 @@ export default function InventoryManagement() {
 
       {/* Stock Update Modal */}
       {showStockModal && selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md">
+            <h2 className="text-xl font-bold text-slate-900 mb-4">
               Update Stock - {selectedItem.product_name}
             </h2>
             
@@ -691,7 +704,7 @@ export default function InventoryManagement() {
                 <button
                   onClick={handleStockUpdate}
                   disabled={loading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50"
                 >
                   {loading ? 'Updating...' : 'Update Stock'}
                 </button>

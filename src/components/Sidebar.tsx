@@ -36,7 +36,16 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   ];
 
   return (
-    <div className={`bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} min-h-screen flex flex-col`}>
+    <>
+      {/* Mobile Backdrop */}
+      {!isCollapsed && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onToggle}
+        />
+      )}
+      
+      <div className={`bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl transition-all duration-300 ${isCollapsed ? '-translate-x-full lg:translate-x-0 lg:w-20' : 'translate-x-0 w-64 lg:w-64'} min-h-screen flex flex-col fixed lg:relative z-50 lg:translate-x-0`}>
       {/* Radhey Business Management Branding */}
       <div className={`border-b border-slate-700/80 ${isCollapsed ? 'px-3 py-4' : 'px-4 py-4'}`}>
         {isCollapsed ? (
@@ -133,7 +142,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           <>
             <div className="mb-4 p-3 bg-slate-800 rounded-xl">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-bold">
                     {user?.email?.charAt(0).toUpperCase() || 'U'}
                   </span>
@@ -174,5 +183,6 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         )}
       </div>
     </div>
+    </>
   );
 }

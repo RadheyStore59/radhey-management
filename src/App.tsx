@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { LocalStorageAuthProvider, useAuth } from './contexts/LocalStorageAuthContext';
 import Login from './components/Login';
 import Sidebar from './components/Sidebar';
+import MobileHeader from './components/MobileHeader';
 import Dashboard from './components/Dashboard';
 import LeadsManagement from './components/LeadsManagement';
 import SalesManagement from './components/SalesManagement';
@@ -23,7 +24,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const { user } = useAuth();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   
   return (
     <Routes>
@@ -35,7 +36,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <Dashboard />
             </div>
           </div>
@@ -45,7 +47,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <LeadsManagement />
             </div>
           </div>
@@ -55,7 +58,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <SalesManagement />
             </div>
           </div>
@@ -65,7 +69,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <InvestmentManagement />
             </div>
           </div>
@@ -76,7 +81,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <InventoryManagement />
             </div>
           </div>
@@ -86,7 +92,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <GstManagement />
             </div>
           </div>
@@ -96,7 +103,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <CourierManagement />
             </div>
           </div>
@@ -106,7 +114,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <Reports />
             </div>
           </div>
@@ -116,7 +125,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <ImportExcel />
             </div>
           </div>
@@ -126,7 +136,8 @@ function AppRoutes() {
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <Settings />
             </div>
           </div>

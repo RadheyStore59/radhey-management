@@ -163,32 +163,32 @@ export default function Settings() {
 
   return (
     <>
-      <div className="p-8 bg-gray-50/30 min-h-screen font-sans">
-        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-3">Settings</h1>
-            <p className="text-slate-500 font-medium text-lg">Manage your system settings and preferences</p>
+    <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+      <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2 sm:mb-3">Settings</h1>
+          <p className="text-slate-500 font-medium text-base sm:text-lg">Manage your system settings and preferences</p>
+        </div>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-400 to-blue-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">User Role</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">{user?.role || 'Staff'}</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">User Role</span>
-              <span className="text-3xl font-black text-slate-900 relative z-10">{user?.role || 'Staff'}</span>
-            </div>
-            <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-              <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">System Status</span>
-              <span className="text-3xl font-black text-emerald-600 relative z-10">Active</span>
-            </div>
+          <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-400 to-emerald-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">System Status</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">Active</span>
           </div>
         </div>
+      </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 mb-8 backdrop-blur-sm bg-white/80">
-          <div className="flex space-x-1">
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex space-x-1 overflow-x-auto">
             <button
               onClick={() => setActiveTab('profile')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'profile'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -200,7 +200,7 @@ export default function Settings() {
             {user?.role === 'Admin' && (
               <button
                 onClick={() => setActiveTab('users')}
-                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-4 sm:px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'users'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -213,7 +213,7 @@ export default function Settings() {
             {user?.role === 'Admin' && (
               <button
                 onClick={() => setActiveTab('form-builder')}
-                className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-4 sm:px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'form-builder'
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -225,7 +225,7 @@ export default function Settings() {
             )}
             <button
               onClick={() => setActiveTab('system')}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+              className={`flex items-center gap-2 px-4 sm:px-6 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
                 activeTab === 'system'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
@@ -277,7 +277,7 @@ export default function Settings() {
               <div className="border-t pt-6">
                 <button
                   onClick={logout}
-                  className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-red-700 transition-all shadow-lg"
                 >
                   <LogOut className="w-5 h-5" />
                   Logout
@@ -299,7 +299,7 @@ export default function Settings() {
                     setUserForm({ email: '', password: '', role: 'Staff' });
                     setEditingUser(null);
                   }}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl hover:from-blue-700 hover:to-purple-700 flex items-center gap-2 transition-all shadow-lg"
                 >
                   <Plus className="w-5 h-5" />
                   Add User
@@ -434,7 +434,7 @@ export default function Settings() {
                   <div className="flex justify-end">
                     <button
                       onClick={saveWhatsAppTemplates}
-                      className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-colors"
+                      className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all shadow-lg"
                     >
                       Save Templates
                     </button>
@@ -457,7 +457,7 @@ export default function Settings() {
                       a.click();
                       window.URL.revokeObjectURL(url);
                     }}
-                    className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 flex items-center gap-2 transition-colors"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:from-green-600 hover:to-emerald-700 flex items-center gap-2 transition-all shadow-lg"
                   >
                     <Download className="w-5 h-5" />
                     Export Leads
@@ -473,7 +473,7 @@ export default function Settings() {
                       a.click();
                       window.URL.revokeObjectURL(url);
                     }}
-                    className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 flex items-center gap-2 transition-colors"
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:from-green-600 hover:to-emerald-700 flex items-center gap-2 transition-all shadow-lg"
                   >
                     <Download className="w-5 h-5" />
                     Export Sales
@@ -489,7 +489,7 @@ export default function Settings() {
                       a.click();
                       window.URL.revokeObjectURL(url);
                     }}
-                    className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 flex items-center gap-2 transition-colors"
+className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:from-green-600 hover:to-emerald-700 flex items-center gap-2 transition-all shadow-lg"
                   >
                     <Download className="w-5 h-5" />
                     Export Investments
@@ -526,8 +526,8 @@ export default function Settings() {
 
         {/* User Form Modal */}
         {showUserForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 w-full max-w-md">
               <h3 className="text-xl font-black text-slate-900 mb-4">
                 {editingUser ? 'Edit User' : 'Add New User'}
               </h3>
@@ -596,7 +596,7 @@ export default function Settings() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    className="px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg"
                   >
                     {loading ? 'Saving...' : (editingUser ? 'Update' : 'Create')}
                   </button>

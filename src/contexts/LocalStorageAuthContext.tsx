@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { LocalStorageDB } from '../utils/localStorage';
 
 interface User {
   id: string;
@@ -24,7 +25,7 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
   useEffect(() => {
     // Check for existing user session from localStorage
     const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('token');
+    const storedToken = LocalStorageDB.getToken();
 
     // If we have a user but no token, clear the session
     if (storedUser && !storedToken) {
@@ -38,9 +39,11 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
       try {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
+        // Migrate to the shared token key used by API wrapper
+        LocalStorageDB.setToken(storedToken);
       } catch (error) {
         localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        LocalStorageDB.clearToken();
         setUser(null);
         setToken(null);
       }
@@ -84,7 +87,7 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
       }
 
       // Store user data and token in localStorage for session persistence
-      localStorage.setItem('token', data.token);
+      LocalStorageDB.setToken(data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       
       setUser(data.user);
@@ -137,7 +140,7 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
     setUser(null);
     setToken(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    LocalStorageDB.clearToken();
   };
 
   return (

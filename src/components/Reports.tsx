@@ -165,8 +165,8 @@ export default function Reports() {
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-8">
+    <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+      <div className="mb-6 sm:mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Reports</h1>
         <p className="text-gray-600 mt-2">Generate and export business reports</p>
       </div>

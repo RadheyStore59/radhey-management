@@ -12,6 +12,9 @@ import DatePickerField from './DatePickerField';
 import SelectField from './SelectField';
 import SkeletonLoader, { TableSkeleton } from './SkeletonLoader';
 
+interface CourierManagementProps {
+}
+
 export default function CourierManagement() {
   const [courierRecords, setCourierRecords] = useState<Courier[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<Courier[]>([]);
@@ -286,16 +289,16 @@ export default function CourierManagement() {
 
   if (loading && courierRecords.length === 0) {
     return (
-      <div className="p-6">
-        <div className="mb-6">
-          <SkeletonLoader height="h-8" width="w-48" className="mb-4" />
-          <SkeletonLoader height="h-4" width="w-64" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 sm:mb-8">
+          <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3 sm:mb-4" />
+          <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
-              <SkeletonLoader height="h-4" width="w-16" className="mb-2" />
-              <SkeletonLoader height="h-8" width="w-24" />
+            <div key={i} className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
+              <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
+              <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-24" />
             </div>
           ))}
         </div>
@@ -305,29 +308,29 @@ export default function CourierManagement() {
   }
 
   return (
-    <div className="p-8 bg-gray-50/30 min-h-screen font-sans">
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+      <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-3">Courier Cost</h1>
-          <p className="text-slate-500 font-medium text-lg">Manage courier shipments and tracking</p>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2 sm:mb-3">Courier Cost</h1>
+          <p className="text-slate-500 font-medium text-base sm:text-lg">Manage courier shipments and tracking</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-green-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">Completed</span>
-            <span className="text-3xl font-black text-slate-900 relative z-10">{filteredRecords.filter(r => r.status === 'Completed').length}</span>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-green-400 to-emerald-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">Completed</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">{filteredRecords.filter(r => r.status === 'Completed').length}</span>
           </div>
-          <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-            <span className="text-[10px] font-bold text-yellow-500 uppercase tracking-widest relative z-10">Pending</span>
-            <span className="text-3xl font-black text-yellow-600 relative z-10">{filteredRecords.filter(r => r.status === 'Pending').length}</span>
+          <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-yellow-400 to-orange-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-yellow-500 uppercase tracking-widest relative z-10">Pending</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-yellow-600 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">{filteredRecords.filter(r => r.status === 'Pending').length}</span>
           </div>
         </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 mb-8 backdrop-blur-sm bg-white/80">
-        <div className="flex flex-col lg:flex-row gap-6 items-center">
+      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-center">
           <div className="flex-1 relative w-full group">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500" size={18} />
             <input
@@ -339,8 +342,8 @@ export default function CourierManagement() {
             />
           </div>
           
-          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-            <div className="min-w-[180px]">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full lg:w-auto">
+            <div className="min-w-[160px] sm:min-w-[180px]">
               <SelectField
                 value={statusFilter}
                 options={[{ value: 'all', label: 'All Status' }, ...statusSelectOptions]}
@@ -382,10 +385,10 @@ export default function CourierManagement() {
                   setEditingRecord(null);
                   resetForm();
                 }}
-                className="flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-[0_10px_20px_-5px_rgba(0,0,0,0.15)] hover:shadow-[0_15px_25px_-5px_rgba(0,0,0,0.2)] text-sm font-bold ml-2 active:scale-95"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 sm:px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg text-sm font-bold ml-2 active:scale-95"
               >
                 <Plus className="w-5 h-5" />
-                Add Courier
+                <span className="hidden sm:inline">Add Courier</span>
               </button>
             </div>
           </div>
@@ -682,7 +685,7 @@ export default function CourierManagement() {
               <button
                 type="submit"
                 form="courier-form"
-                className="px-10 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+                className="px-6 sm:px-10 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg"
               >
                 {editingRecord ? 'Update' : 'Add'} Courier Record
               </button>

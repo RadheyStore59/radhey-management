@@ -59,6 +59,9 @@ const getPhaseBadgeClass = (phase?: string) => {
   }
 };
 
+interface SalesManagementProps {
+}
+
 export default function SalesManagement() {
   const { user } = useAuth();
   const canDelete = user?.role === 'Admin';
@@ -265,7 +268,6 @@ export default function SalesManagement() {
   };
 
   const handleEdit = (sale: Sale) => {
-    setEditingSale(sale);
     setFormData({
       invoice_number: sale.invoice_number,
       radhey_invoice: sale.radhey_invoice,
@@ -595,16 +597,16 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
   if (loading && sales.length === 0) {
     return (
-      <div className="p-6">
-        <div className="mb-6">
-          <SkeletonLoader height="h-8" width="w-48" className="mb-4" />
-          <SkeletonLoader height="h-4" width="w-64" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 sm:mb-8">
+          <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3 sm:mb-4" />
+          <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
-              <SkeletonLoader height="h-4" width="w-20" className="mb-2" />
-              <SkeletonLoader height="h-8" width="w-28" />
+            <div key={i} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100">
+              <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
+              <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-28" />
             </div>
           ))}
         </div>
@@ -614,29 +616,29 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
   }
 
   return (
-    <div className="p-8 bg-gray-50/30 min-h-screen font-sans">
-      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+      <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-none mb-3">Sales Ledger</h1>
-          <p className="text-slate-500 font-medium text-lg">Manage your commercial transactions and business growth</p>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2 sm:mb-3">Sales Ledger</h1>
+          <p className="text-slate-500 font-medium text-base sm:text-lg">Manage your commercial transactions and business growth</p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">Gross Revenue</span>
-            <span className="text-3xl font-black text-slate-900 relative z-10">₹{filteredSales.reduce((sum, s) => sum + (s.sell_price || 0), 0).toLocaleString()}</span>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-400 to-blue-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">Gross Revenue</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">₹{filteredSales.reduce((sum, s) => sum + (s.sell_price || 0), 0).toLocaleString()}</span>
           </div>
-          <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Net Profit</span>
-            <span className="text-3xl font-black text-emerald-600 relative z-10">₹{filteredSales.reduce((sum, s) => sum + (s.profit || 0), 0).toLocaleString()}</span>
+          <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-400 to-emerald-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Net Profit</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">₹{filteredSales.reduce((sum, s) => sum + (s.profit || 0), 0).toLocaleString()}</span>
           </div>
         </div>
       </div>
 
       {/* Search and Filter Bar */}
-      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 mb-8 backdrop-blur-sm bg-white/80">
-        <div className="flex flex-col lg:flex-row gap-6 items-center">
+      <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 sm:p-6 mb-6 sm:mb-8">
+        <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-center">
           <div className="flex-1 relative w-full group">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-blue-500" size={18} />
             <input
@@ -648,8 +650,8 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
             />
           </div>
           
-          <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-            <div className="relative group min-w-[180px]">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full lg:w-auto">
+            <div className="relative group min-w-[160px] sm:min-w-[180px]">
               <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
               <DatePickerField
                 value={dateFilter}
@@ -659,7 +661,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
               />
             </div>
 
-            <div className="min-w-[200px]">
+            <div className="min-w-[180px] sm:min-w-[200px]">
               <SelectField
                 value={clientPaymentFilter}
                 options={paymentStatusOptions}
@@ -699,14 +701,13 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
               <button
                 onClick={() => {
-                  setShowForm(true);
                   setEditingSale(null);
                   resetForm();
                 }}
-                className="flex items-center gap-2 bg-slate-900 text-white px-8 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-[0_10px_20px_-5px_rgba(0,0,0,0.15)] hover:shadow-[0_15px_25px_-5px_rgba(0,0,0,0.2)] text-sm font-bold ml-2 active:scale-95"
+                className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 sm:px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg text-sm font-bold ml-2 active:scale-95"
               >
                 <Plus size={18} strokeWidth={3} />
-                Create Entry
+                <span className="hidden sm:inline">Create Entry</span>
               </button>
             </div>
           </div>
@@ -1188,7 +1189,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                 type="button"
                 onClick={handleSubmit}
                 disabled={loading}
-                className="px-10 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 disabled:opacity-50 active:scale-95"
+                className="px-6 sm:px-10 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg disabled:opacity-50 active:scale-95"
               >
                 {loading ? 'Saving...' : (editingSale ? 'Update Record' : 'Save Transaction')}
               </button>
@@ -1203,7 +1204,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col border border-slate-100">
             <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div className="flex items-center gap-3">
-                <div className="bg-slate-900 text-white p-2.5 rounded-xl">
+                <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white p-2.5 rounded-xl">
                   <Calculator size={20} />
                 </div>
                 <div>
@@ -1302,10 +1303,10 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
               )}
             </div>
 
-            <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+            <div className="px-4 sm:px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end">
               <button 
                 onClick={() => setShowViewModal(false)}
-                className="px-8 py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-all shadow-lg shadow-slate-200 active:scale-95"
+                className="px-6 sm:px-8 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg active:scale-95"
               >
                 Close Summary
               </button>
@@ -1343,7 +1344,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                   className="hidden"
                   onChange={handleFileImport}
                 />
-                <div className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 cursor-pointer active:scale-[0.98]">
+                <div className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-black text-sm hover:from-blue-700 hover:to-purple-700 transition-all shadow-xl cursor-pointer active:scale-[0.98]">
                   Browse Files
                 </div>
               </label>
