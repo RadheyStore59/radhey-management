@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Settings as SettingsIcon, Users as UsersIcon, Layout, Shield, LogOut, Save, Plus, Trash2, Edit2, Phone, Database, ChevronRight, Download, Eye, EyeOff } from 'lucide-react';
+import { User, Settings as SettingsIcon, Users as UsersIcon, Layout, Shield, LogOut, Save, Plus, Trash2, Edit2, Phone, Database, ChevronRight, Download, Eye, EyeOff, Calendar } from 'lucide-react';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import { LocalStorageDB } from '../utils/localStorage';
 import { usersAPI } from '../utils/api';
@@ -290,108 +290,108 @@ export default function Settings() {
         {/* Users Tab */}
         {activeTab === 'users' && user?.role === 'Admin' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-black text-slate-900">User Management</h3>
-                <button
-                  onClick={() => {
-                    setShowUserForm(true);
-                    setUserForm({ email: '', password: '', role: 'Staff' });
-                    setEditingUser(null);
-                  }}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-xl hover:from-blue-700 hover:to-purple-700 flex items-center gap-2 transition-all shadow-lg"
-                >
-                  <Plus className="w-5 h-5" />
-                  Add User
-                </button>
+            {/* Users Table */}
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-slate-100">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold text-slate-900">User Management</h3>
+                  <button
+                    onClick={() => {
+                      setShowUserForm(true);
+                      setUserForm({ email: '', password: '', role: 'Staff' });
+                      setEditingUser(null);
+                    }}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add User
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-100">
-                <thead className="bg-slate-50/50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                      Role
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-slate-100">
-                  {users.length === 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-100">
+                  <thead className="bg-slate-50/50">
                     <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                        <div className="flex flex-col items-center">
-                          <UsersIcon className="w-12 h-12 mx-auto mb-4 text-slate-300" />
-                          <p>No users found</p>
-                          <p className="text-sm mt-2">Click "Add User" to create your first user</p>
-                        </div>
-                      </td>
+                      <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Role</th>
+                      <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Created</th>
+                      <th className="px-6 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
-                  ) : (
-                    users.map((userItem) => (
-                      <tr key={userItem.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
-                          {userItem.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(userItem.role)}`}>
-                            {userItem.role}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                          {new Date(userItem.created_at).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => {
-                                setUserForm({
-                                  email: userItem.email,
-                                  password: '',
-                                  role: userItem.role,
-                                });
-                                setEditingUser(userItem);
-                                setShowUserForm(true);
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Edit user"
-                            >
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                const newRole = userItem.role === 'Admin' ? 'Staff' : 'Admin';
-                                handleUpdateUser(userItem.id, newRole);
-                              }}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="Toggle role"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                            {userItem.role !== 'Admin' && (
-                              <button
-                                onClick={() => handleDeleteUser(userItem.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            )}
+                  </thead>
+                  <tbody className="bg-white divide-y divide-slate-100">
+                    {users.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-20 text-center">
+                          <div className="flex flex-col items-center">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                              <UsersIcon className="text-slate-300" size={24} />
+                            </div>
+                            <p className="text-slate-500 font-medium">No users found</p>
+                            <p className="text-sm mt-2 text-slate-400">Click "Add User" to create your first user</p>
                           </div>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ) : (
+                      users.map((userItem) => (
+                        <tr key={userItem.id} className="hover:bg-slate-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-slate-900">{userItem.email}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(userItem.role)}`}>
+                              {userItem.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-4 h-4 text-slate-400" />
+                              {new Date(userItem.created_at).toLocaleDateString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setUserForm({
+                                    email: userItem.email,
+                                    password: '',
+                                    role: userItem.role,
+                                  });
+                                  setEditingUser(userItem);
+                                  setShowUserForm(true);
+                                }}
+                                className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Edit user"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const newRole = userItem.role === 'Admin' ? 'Staff' : 'Admin';
+                                  handleUpdateUser(userItem.id, newRole);
+                                }}
+                                className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Toggle role"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                              {userItem.role !== 'Admin' && (
+                                <button
+                                  onClick={() => handleDeleteUser(userItem.id)}
+                                  className="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Delete user"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}

@@ -129,14 +129,48 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Bottom Section - User & Actions */}
       <div className="p-4 border-t border-slate-700">
         {isCollapsed ? (
-          // Collapsed state - only expand button
-          <button
-            onClick={onToggle}
-            className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-slate-400 hover:bg-slate-700 hover:text-white"
-            title="Expand Sidebar"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          // Collapsed state - expand button, user icon, settings, logout
+          <div className="flex flex-col gap-2">
+            {/* Expand Button - moved to top */}
+            <button
+              onClick={onToggle}
+              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-slate-400 hover:bg-slate-700 hover:text-white"
+              title="Expand Sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* User Icon */}
+            <div className="flex justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
+                </span>
+              </div>
+            </div>
+            
+            {/* Settings Icon */}
+            <button
+              onClick={() => navigate('/settings')}
+              className={`w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 ${
+                location.pathname === '/settings'
+                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25'
+                  : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+              }`}
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
+            {/* Logout Icon */}
+            <button
+              onClick={logout}
+              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-600/20 hover:text-red-300"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+          </div>
         ) : (
           // Expanded state - user info, settings, logout
           <>
