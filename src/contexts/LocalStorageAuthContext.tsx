@@ -4,13 +4,14 @@ import { LocalStorageDB } from '../utils/localStorage';
 interface User {
   id: string;
   email: string;
+  name: string;
   role: 'Admin' | 'Staff';
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ error: any }>;
-  signup: (email: string, password: string) => Promise<{ error: any }>;
+  signup: (email: string, password: string, name: string) => Promise<{ error: any }>;
   logout: () => void;
   loading: boolean;
 }
@@ -23,32 +24,83 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check for existing user session from localStorage
-    const storedUser = localStorage.getItem('user');
-    const storedToken = LocalStorageDB.getToken();
+    const initializeAuth = async () => {
+      // Check for existing user session from localStorage
+      const storedUser = localStorage.getItem('user');
+      const storedToken = LocalStorageDB.getToken();
 
-    // If we have a user but no token, clear the session
-    if (storedUser && !storedToken) {
-      localStorage.removeItem('user');
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-
-    if (storedUser && storedToken) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-        // Migrate to the shared token key used by API wrapper
-        LocalStorageDB.setToken(storedToken);
-      } catch (error) {
+      // If we have a user but no token, clear the session
+      if (storedUser && !storedToken) {
         localStorage.removeItem('user');
-        LocalStorageDB.clearToken();
         setUser(null);
-        setToken(null);
+        setLoading(false);
+        return;
       }
-    }
-    setLoading(false);
+
+      if (storedUser && storedToken) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          
+          // If user data is missing name field, fetch fresh user data
+          if (!parsedUser.name) {
+            console.log('User data missing name field, fetching fresh data...');
+            console.log('Stored user data:', parsedUser);
+            console.log('API_BASE_URL:', API_BASE_URL);
+            try {
+              const res = await fetch(`${API_BASE_URL}/auth/verify`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${storedToken}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              
+              console.log('Verify response status:', res.status);
+              
+              if (res.ok) {
+                const data = await res.json();
+                console.log('Verify response data:', data);
+                if (data.user && data.user.name) {
+                  console.log('Got fresh user data with name:', data.user.name);
+                  localStorage.setItem('user', JSON.stringify(data.user));
+                  setUser(data.user);
+                  setToken(storedToken);
+                  LocalStorageDB.setToken(storedToken);
+                } else {
+                  console.log('Verify response missing name field');
+                  setUser(parsedUser);
+                  setToken(storedToken);
+                  LocalStorageDB.setToken(storedToken);
+                }
+              } else {
+                console.log('Verify request failed');
+                setUser(parsedUser);
+                setToken(storedToken);
+                LocalStorageDB.setToken(storedToken);
+              }
+            } catch (error) {
+              console.error('Failed to refresh user data:', error);
+              setUser(parsedUser);
+              setToken(storedToken);
+              LocalStorageDB.setToken(storedToken);
+            }
+          } else {
+            setUser(parsedUser);
+            setToken(storedToken);
+            // Migrate to the shared token key used by API wrapper
+            LocalStorageDB.setToken(storedToken);
+          }
+        } catch (error) {
+          localStorage.removeItem('user');
+          LocalStorageDB.clearToken();
+          setUser(null);
+          setToken(null);
+        }
+      }
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
   const getApiBaseUrl = () => {
@@ -102,18 +154,18 @@ export function LocalStorageAuthProvider({ children }: { children: ReactNode }) 
     }
   };
 
-  const signup = async (email: string, password: string) => {
+  const signup = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      if (!email || !password) throw new Error('Invalid signup data');
+      if (!email || !password || !name) throw new Error('Invalid signup data');
 
       console.log('Attempting signup to:', `${API_BASE_URL}/auth/signup`);
-      console.log('Signup data:', { email });
+      console.log('Signup data:', { email, name });
 
       const res = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name }),
       });
 
       console.log('Signup response status:', res.status);

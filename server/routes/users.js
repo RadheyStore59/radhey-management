@@ -13,7 +13,7 @@ router.use(requireAuth);
 router.get('/', requireAdmin, async (req, res) => {
   try {
     const users = await User.find({})
-      .select('_id id email role created_at')
+      .select('_id id email name role created_at')
       .sort({ created_at: -1 });
     res.json(users);
   } catch (error) {
@@ -24,7 +24,7 @@ router.get('/', requireAdmin, async (req, res) => {
 // Create user (Admin only)
 router.post('/', requireAdmin, async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, name } = req.body;
     const normalizedEmail = String(email || '').toLowerCase().trim();
 
     if (!normalizedEmail || !password) {
@@ -42,6 +42,7 @@ router.post('/', requireAdmin, async (req, res) => {
     const user = await User.create({
       id: crypto.randomUUID(),
       email: normalizedEmail,
+      name: name || '',
       passwordHash,
       role: finalRole,
     });
@@ -49,6 +50,7 @@ router.post('/', requireAdmin, async (req, res) => {
     res.status(201).json({
       id: user.id,
       email: user.email,
+      name: user.name,
       role: user.role,
       created_at: user.created_at,
     });
@@ -61,7 +63,7 @@ router.post('/', requireAdmin, async (req, res) => {
 router.put('/:userId', requireAdmin, async (req, res) => {
   try {
     const { userId } = req.params;
-    const { email, role, password } = req.body;
+    const { email, role, password, name } = req.body;
     
     const updateData = {};
     
@@ -73,6 +75,10 @@ router.put('/:userId', requireAdmin, async (req, res) => {
         return res.status(400).json({ message: 'Email already in use' });
       }
       updateData.email = normalizedEmail;
+    }
+    
+    if (name !== undefined) {
+      updateData.name = name;
     }
     
     if (role) {
@@ -87,7 +93,7 @@ router.put('/:userId', requireAdmin, async (req, res) => {
       { id: userId },
       updateData,
       { new: true }
-    ).select('_id id email role created_at');
+    ).select('_id id email name role created_at');
 
     if (!updated) {
       return res.status(404).json({ message: 'User not found' });
@@ -110,7 +116,7 @@ router.put('/:userId/role', requireAdmin, async (req, res) => {
       { id: userId },
       { role: finalRole },
       { new: true }
-    ).select('_id id email role created_at');
+    ).select('_id id email name role created_at');
 
     if (!updated) {
       return res.status(404).json({ message: 'User not found' });

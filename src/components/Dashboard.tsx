@@ -15,6 +15,9 @@ import { useAuth } from '../contexts/LocalStorageAuthContext';
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  console.log('Dashboard - User data:', user);
+  console.log('Dashboard - User name:', user?.name);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -126,7 +129,7 @@ export default function Dashboard() {
       <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
       <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2 sm:mb-3">Dashboard</h1>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight sm:leading-normal">Hi, {user?.name || 'User'}</h1>
           <p className="text-slate-500 font-medium text-base sm:text-lg">Welcome to your business management dashboard</p>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">

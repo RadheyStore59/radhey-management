@@ -290,7 +290,7 @@ export default function InventoryManagement() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2">Inventory Management</h1>
+        <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-normal sm:leading-normal">Inventory Management</h1>
         <p className="text-slate-500 font-medium text-base sm:text-lg mt-2">Manage your products and track stock levels</p>
       </div>
 

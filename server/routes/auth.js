@@ -5,15 +5,17 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/user');
+const { requireAuth } = require('../middleware/auth');
 
 // Signup endpoint
 router.post('/signup', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
     const role = 'Staff'; // signup defaults to Staff
 
     console.log('=== SIGNUP REQUEST ===');
     console.log('Email:', email);
+    console.log('Name:', name);
     console.log('Password provided:', !!password);
 
     if (!email || !password) {
@@ -37,14 +39,15 @@ router.post('/signup', async (req, res) => {
     const user = await User.create({
       id: crypto.randomUUID(),
       email: String(email).toLowerCase().trim(),
+      name: name || '',
       passwordHash,
       role,
     });
 
-    console.log('User created successfully:', { id: user.id, email: user.email, role: user.role });
+    console.log('User created successfully:', { id: user.id, email: user.email, name: user.name, role: user.role });
 
     res.status(201).json({
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
     });
   } catch (error) {
     console.error('Signup error:', error);
@@ -94,19 +97,50 @@ router.post('/login', async (req, res) => {
 
     console.log('Generating JWT token...');
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      { id: user.id, email: user.email, name: user.name, role: user.role },
       jwtSecret,
       { expiresIn: '7d' }
     );
 
-    console.log('Login successful for user:', { id: user.id, email: user.email, role: user.role });
+    console.log('Login successful for user:', { id: user.id, email: user.email, name: user.name, role: user.role });
 
     res.json({
-      user: { id: user.id, email: user.email, role: user.role },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
       token,
     });
   } catch (error) {
     console.error('Login error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Verify token and return user data
+router.get('/verify', requireAuth, async (req, res) => {
+  try {
+    // Fetch full user data from database to ensure we have the name field
+    const user = await User.findOne({ id: req.user.id });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    console.log('Verify endpoint - User data from DB:', {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    });
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      }
+    });
+  } catch (error) {
+    console.error('Verify error:', error);
     res.status(500).json({ message: error.message });
   }
 });

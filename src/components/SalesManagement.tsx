@@ -293,6 +293,7 @@ export default function SalesManagement() {
       remarks: sale.remarks,
     });
     setCustomFieldValues((sale as any).custom_fields || {});
+    setEditingSale(sale);
     setShowForm(true);
   };
 
@@ -619,7 +620,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
     <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
       <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2 sm:mb-3">Sales Ledger</h1>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight sm:leading-normal">Sales Ledger</h1>
           <p className="text-slate-500 font-medium text-base sm:text-lg">Manage your commercial transactions and business growth</p>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">

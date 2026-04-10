@@ -13,6 +13,7 @@ import SelectField from './SelectField';
 interface UserSettings {
   id: string;
   email: string;
+  name: string;
   role: 'Admin' | 'Staff';
   created_at: string;
 }
@@ -30,6 +31,7 @@ export default function Settings() {
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [userForm, setUserForm] = useState({
+    name: '',
     email: '',
     password: '',
     role: 'Staff' as 'Admin' | 'Staff',
@@ -69,6 +71,7 @@ export default function Settings() {
       if (editingUser) {
         // Update existing user
         const updateData: any = {
+          name: userForm.name,
           email: userForm.email,
           role: userForm.role,
         };
@@ -83,7 +86,7 @@ export default function Settings() {
         await fetchUsers();
         
         setShowUserForm(false);
-        setUserForm({ email: '', password: '', role: 'Staff' });
+        setUserForm({ name: '', email: '', password: '', role: 'Staff' });
         setEditingUser(null);
         setLoading(false);
         showToast('User updated successfully.', 'success');
@@ -95,6 +98,7 @@ export default function Settings() {
         
         if (userForm.email && userForm.password) {
           await usersAPI.create({
+            name: userForm.name,
             email: userForm.email,
             password: userForm.password,
             role: userForm.role,
@@ -103,7 +107,7 @@ export default function Settings() {
           await fetchUsers();
           
           setShowUserForm(false);
-          setUserForm({ email: '', password: '', role: 'Staff' });
+          setUserForm({ name: '', email: '', password: '', role: 'Staff' });
           setEditingUser(null);
           setLoading(false);
           showToast('User created successfully.', 'success');
@@ -166,7 +170,7 @@ export default function Settings() {
     <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
       <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight mb-2 sm:mb-3">Settings</h1>
+          <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-normal">Settings</h1>
           <p className="text-slate-500 font-medium text-base sm:text-lg">Manage your system settings and preferences</p>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
@@ -255,6 +259,15 @@ export default function Settings() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={user?.name || ''}
+                    disabled
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                   <input
                     type="email"
@@ -298,7 +311,7 @@ export default function Settings() {
                   <button
                     onClick={() => {
                       setShowUserForm(true);
-                      setUserForm({ email: '', password: '', role: 'Staff' });
+                      setUserForm({ name: '', email: '', password: '', role: 'Staff' });
                       setEditingUser(null);
                     }}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition-colors"
@@ -312,6 +325,7 @@ export default function Settings() {
                 <table className="min-w-full divide-y divide-slate-100">
                   <thead className="bg-slate-50/50">
                     <tr>
+                      <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Name</th>
                       <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Email</th>
                       <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Role</th>
                       <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Created</th>
@@ -321,7 +335,7 @@ export default function Settings() {
                   <tbody className="bg-white divide-y divide-slate-100">
                     {users.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="px-6 py-20 text-center">
+                        <td colSpan={5} className="px-6 py-20 text-center">
                           <div className="flex flex-col items-center">
                             <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                               <UsersIcon className="text-slate-300" size={24} />
@@ -334,6 +348,9 @@ export default function Settings() {
                     ) : (
                       users.map((userItem) => (
                         <tr key={userItem.id} className="hover:bg-slate-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-slate-900">{userItem.name || '-'}</div>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm font-medium text-slate-900">{userItem.email}</div>
                           </td>
@@ -353,6 +370,7 @@ export default function Settings() {
                               <button
                                 onClick={() => {
                                   setUserForm({
+                                    name: userItem.name,
                                     email: userItem.email,
                                     password: '',
                                     role: userItem.role,
@@ -534,6 +552,16 @@ className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 r
               <form onSubmit={handleCreateUser}>
                 <div className="space-y-4">
                   <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Name</label>
+                    <input
+                      type="text"
+                      value={userForm.name}
+                      onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
+                      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter name"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
                     <input
                       type="email"
@@ -587,7 +615,7 @@ className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 r
                     onClick={() => {
                       setShowUserForm(false);
                       setEditingUser(null);
-                      setUserForm({ email: '', password: '', role: 'Staff' });
+                      setUserForm({ name: '', email: '', password: '', role: 'Staff' });
                     }}
                     className="px-4 py-2 border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors"
                   >

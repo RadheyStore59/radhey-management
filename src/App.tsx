@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { LocalStorageAuthProvider, useAuth } from './contexts/LocalStorageAuthContext';
 import Login from './components/Login';
 import Sidebar from './components/Sidebar';
@@ -23,15 +23,23 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const location = useLocation();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  
+  // Show loading spinner while checking authentication
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
   
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-      <Route path="/" element={
-        <Navigate to="/dashboard" />
-      } />
+      <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <div className="flex h-screen overflow-hidden">
@@ -143,7 +151,6 @@ function AppRoutes() {
           </div>
         </ProtectedRoute>
       } />
-      <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );
 }
