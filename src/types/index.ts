@@ -41,7 +41,7 @@ export interface Sale {
   payment_by: string;
   payment_through: string;
   received_through_client: string;
-  profit_given: number;
+  profit_given: string;
   remarks: string;
   created_at: string;
   user_id: string;

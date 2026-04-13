@@ -55,6 +55,22 @@ router.post('/signup', async (req, res) => {
   }
 });
 
+// Debug endpoint to list all users
+router.get('/debug/users', async (req, res) => {
+  try {
+    const users = await User.find({});
+    console.log('Total users in database:', users.length);
+    console.log('Users:', users.map(u => ({ id: u.id, email: u.email, name: u.name, role: u.role })));
+    res.json({ 
+      total: users.length, 
+      users: users.map(u => ({ id: u.id, email: u.email, name: u.name, role: u.role }))
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Login endpoint
 router.post('/login', async (req, res) => {
   try {

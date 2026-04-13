@@ -56,13 +56,13 @@ export default function SkeletonLoader({
 
 // Specialized skeleton components
 export const CardSkeleton = ({ className = '' }: { className?: string }) => (
-  <div className={`bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100 ${className}`}>
+  <div className={`bg-white rounded-xl sm:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100 ${className}`}>
     <div className="flex items-center justify-between">
-      <div className="flex-1">
-        <SkeletonLoader height="h-4" width="w-24" className="mb-3" />
-        <SkeletonLoader height="h-8" width="w-32" />
+      <div className="flex-1 min-w-0">
+        <SkeletonLoader height="h-3 sm:h-4" width="w-20 sm:w-24" className="mb-2 sm:mb-3" />
+        <SkeletonLoader height="h-6 sm:h-8" width="w-24 sm:w-32" />
       </div>
-      <SkeletonLoader variant="avatar" />
+      <div className="w-10 h-10 sm:w-10 sm:h-10 bg-gray-200 rounded-full animate-pulse flex-shrink-0" />
     </div>
   </div>
 );
@@ -74,8 +74,8 @@ export const TableSkeleton = ({ rows = 5, columns = 4 }: { rows?: number; column
         <thead className="bg-slate-50/50">
           <tr>
             {Array.from({ length: columns }).map((_, index) => (
-              <th key={index} className="px-6 py-4">
-                <SkeletonLoader height="h-4" width="w-20" />
+              <th key={index} className="px-3 sm:px-6 py-3 sm:py-4">
+                <SkeletonLoader height="h-3 sm:h-4" width="w-12 sm:w-20" />
               </th>
             ))}
           </tr>
@@ -84,8 +84,8 @@ export const TableSkeleton = ({ rows = 5, columns = 4 }: { rows?: number; column
           {Array.from({ length: rows }).map((_, rowIndex) => (
             <tr key={rowIndex}>
               {Array.from({ length: columns }).map((_, colIndex) => (
-                <td key={colIndex} className="px-6 py-4">
-                  <SkeletonLoader height="h-4" />
+                <td key={colIndex} className="px-3 sm:px-6 py-3 sm:py-4">
+                  <SkeletonLoader height="h-3 sm:h-4" width={colIndex === 0 ? "w-20 sm:w-32" : "w-12 sm:w-full"} />
                 </td>
               ))}
             </tr>
@@ -97,13 +97,13 @@ export const TableSkeleton = ({ rows = 5, columns = 4 }: { rows?: number; column
 );
 
 export const StatsCardSkeleton = () => (
-  <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 border border-slate-100">
+  <div className="bg-white rounded-xl sm:rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100">
     <div className="flex items-center justify-between">
-      <div className="flex-1">
-        <SkeletonLoader height="h-4" width="w-20" className="mb-2" />
-        <SkeletonLoader height="h-8" width="w-28" />
+      <div className="flex-1 min-w-0">
+        <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
+        <SkeletonLoader height="h-6 sm:h-8" width="w-20 sm:w-28" />
       </div>
-      <div className="w-12 h-12 bg-gray-200 rounded-xl animate-pulse" />
+      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-lg sm:rounded-xl animate-pulse flex-shrink-0" />
     </div>
   </div>
 );

@@ -289,18 +289,22 @@ export default function CourierManagement() {
 
   if (loading && courierRecords.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 sm:mb-8">
-          <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3 sm:mb-4" />
-          <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100">
+      <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+        <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
+          <div>
+            <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3" />
+            <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
+          </div>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100 min-w-[140px] sm:min-w-[180px]">
               <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
-              <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-24" />
+              <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-28" />
             </div>
-          ))}
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100 min-w-[140px] sm:min-w-[180px]">
+              <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
+              <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-28" />
+            </div>
+          </div>
         </div>
         <TableSkeleton rows={8} columns={8} />
       </div>

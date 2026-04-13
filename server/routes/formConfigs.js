@@ -37,7 +37,7 @@ const DEFAULT_FIELDS = {
     { key: 'payment_by', label: 'Payment By', type: 'text', required: false, enabled: true, order: 16 },
     { key: 'payment_through', label: 'Payment Through', type: 'text', required: false, enabled: true, order: 17 },
     { key: 'received_through_client', label: 'Received Through Client', type: 'text', required: false, enabled: true, order: 18 },
-    { key: 'profit_given', label: 'Profit Given', type: 'number', required: false, enabled: true, order: 19 },
+    { key: 'profit_given', label: 'Partner Settlement Details', type: 'text', required: false, enabled: true, order: 19 },
     { key: 'remarks', label: 'Remarks', type: 'textarea', required: false, enabled: true, order: 20 },
   ],
   investments: [

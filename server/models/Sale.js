@@ -21,7 +21,7 @@ const saleSchema = new mongoose.Schema({
   payment_by: { type: String, required: false },
   payment_through: { type: String, required: false },
   received_through_client: { type: String, required: false },
-  profit_given: { type: Number, required: true, default: 0 },
+  profit_given: { type: String, required: false, default: '' },
   remarks: { type: String, required: false },
   custom_fields: { type: mongoose.Schema.Types.Mixed, default: {} },
   user_id: { type: String, required: true, default: 'user1' }

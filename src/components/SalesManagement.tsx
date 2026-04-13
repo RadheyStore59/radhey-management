@@ -111,7 +111,7 @@ export default function SalesManagement() {
     payment_by: '',
     payment_through: '',
     received_through_client: '',
-    profit_given: 0,
+    profit_given: '',
     remarks: '',
   });
   const paymentStatusOptions = [
@@ -289,7 +289,7 @@ export default function SalesManagement() {
       payment_by: sale.payment_by,
       payment_through: sale.payment_through,
       received_through_client: sale.received_through_client,
-      profit_given: sale.profit_given,
+      profit_given: String(sale.profit_given || ''),
       remarks: sale.remarks,
     });
     setCustomFieldValues((sale as any).custom_fields || {});
@@ -524,7 +524,7 @@ export default function SalesManagement() {
               payment_by: String(findVal('Payment By', 'payment_by', 'Sales Person')),
               payment_through: String(findVal('Payment Through', 'payment_through', 'Payment Mode')),
               received_through_client: String(findVal('We Received Through Clinet', 'We Received Through Client', 'received_through_client')),
-              profit_given: parseNum(findVal('Profit Given', 'profit_given')),
+              profit_given: String(findVal('Profit Given', 'profit_given', 'Partner Settlement')),
               remarks: String(findVal('Remarks', 'remarks', 'Notes')),
               id: crypto.randomUUID(),
               created_at: new Date().toISOString(),
@@ -583,7 +583,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
       payment_by: '',
       payment_through: '',
       received_through_client: '',
-      profit_given: 0,
+      profit_given: '',
       remarks: '',
     });
     setCustomFieldValues({});
@@ -598,18 +598,22 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
   if (loading && sales.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 sm:mb-8">
-          <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3 sm:mb-4" />
-          <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100">
+      <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+        <div className="mb-6 sm:mb-8 lg:mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
+          <div>
+            <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3" />
+            <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
+          </div>
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100 min-w-[140px] sm:min-w-[180px]">
               <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
               <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-28" />
             </div>
-          ))}
+            <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-4 sm:p-6 border border-slate-100 min-w-[140px] sm:min-w-[180px]">
+              <SkeletonLoader height="h-3 sm:h-4" width="w-16 sm:w-20" className="mb-2" />
+              <SkeletonLoader height="h-7 sm:h-8" width="w-20 sm:w-28" />
+            </div>
+          </div>
         </div>
         <TableSkeleton rows={8} columns={7} />
       </div>
@@ -704,6 +708,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                 onClick={() => {
                   setEditingSale(null);
                   resetForm();
+                  setShowForm(true);
                 }}
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 sm:px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg text-sm font-bold ml-2 active:scale-95"
               >
@@ -721,17 +726,18 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
           <table className="min-w-full divide-y divide-slate-100">
             <thead>
               <tr className="bg-slate-50/50">
-                <th className="px-5 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Invoice</th>
-                <th className="px-5 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                <th className="px-5 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Product & Details</th>
-                <th className="px-5 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Client Name</th>
-                <th className="px-5 py-4 text-center text-[11px] font-bold text-slate-500 uppercase tracking-wider">Phase</th>
-                <th className="px-5 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">Qty</th>
-                <th className="px-5 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">Unit Cost</th>
-                <th className="px-5 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">Sale Price</th>
-                <th className="px-5 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">Net Profit</th>
-                <th className="px-5 py-4 text-center text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-5 py-4 text-right text-[11px] font-bold text-slate-500 uppercase tracking-wider">Actions</th>
+                <th className="px-3 sm:px-5 py-4 text-left text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Invoice</th>
+                <th className="px-3 sm:px-5 py-4 text-left text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Date</th>
+                <th className="px-3 sm:px-5 py-4 text-left text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Product & Details</th>
+                <th className="px-3 sm:px-5 py-4 text-left text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Client Name</th>
+                <th className="px-3 sm:px-5 py-4 text-center text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Phase</th>
+                <th className="px-3 sm:px-5 py-4 text-right text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Qty</th>
+                <th className="px-3 sm:px-5 py-4 text-right text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Unit Cost</th>
+                <th className="px-3 sm:px-5 py-4 text-right text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Sale Price</th>
+                <th className="px-3 sm:px-5 py-4 text-right text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Net Profit</th>
+                <th className="px-3 sm:px-5 py-4 text-right text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Partner Profit</th>
+                <th className="px-3 sm:px-5 py-4 text-center text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Status</th>
+                <th className="px-3 sm:px-5 py-4 text-right text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-100">
@@ -789,6 +795,11 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                     <td className="px-5 py-4 whitespace-nowrap text-right">
                       <span className={`text-sm font-black ${displayProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
                         ₹{displayProfit.toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 whitespace-nowrap text-left">
+                      <span className="text-xs font-medium text-purple-700 max-w-[200px] block truncate" title={String(sale.profit_given || '')}>
+                        {sale.profit_given ? String(sale.profit_given) : '-'}
                       </span>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-center">
@@ -854,7 +865,8 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
         {/* Improved Pagination Controls */}
         {filteredSales.length > itemsPerPage && (
-          <div className="bg-slate-50/50 px-6 py-4 flex items-center justify-between border-t border-slate-100">
+          <div className="bg-slate-50/50 px-4 sm:px-6 py-4 border-t border-slate-100">
+            {/* Desktop Pagination */}
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-slate-500 font-medium">
@@ -919,6 +931,31 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                   </button>
                 </nav>
               </div>
+            </div>
+            
+            {/* Mobile Pagination */}
+            <div className="flex sm:hidden items-center justify-between">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft size={16} />
+                <span>Prev</span>
+              </button>
+              
+              <span className="text-sm font-medium text-slate-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <span>Next</span>
+                <ChevronRight size={16} />
+              </button>
             </div>
           </div>
         )}
@@ -1152,6 +1189,18 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                       value={formData.payment_by}
                       onChange={(e) => setFormData({ ...formData, payment_by: e.target.value })}
                     />
+                  </div>
+
+                  <div className="md:col-span-2 space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Partner Settlement Details</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., All hisab clear to 11/04/2026 (3689/-) ayushi gave to yash online"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium text-slate-900"
+                      value={formData.profit_given}
+                      onChange={(e) => setFormData({ ...formData, profit_given: e.target.value })}
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Enter settlement details with partner (date, amount, who gave to whom)</p>
                   </div>
                 </div>
               </section>

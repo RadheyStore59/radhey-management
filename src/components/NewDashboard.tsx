@@ -92,7 +92,7 @@ export default function NewDashboard() {
           </div>
           <div className="bg-white px-6 py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50/50 rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Net Profit</span>
+            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Gross Profit</span>
             <div className="flex items-center gap-2 relative z-10">
               <IndianRupee className="w-6 h-6 text-emerald-500" />
               <span className="text-3xl font-black text-emerald-600">{(stats?.totalProfit || 0).toLocaleString()}</span>
@@ -128,7 +128,7 @@ export default function NewDashboard() {
           color="bg-purple-500"
         />
         <StatCard
-          title="Total Profit"
+          title="Gross Profit"
           value={formatCurrency(stats?.totalProfit || 0)}
           icon={IndianRupee}
           change="+6.7%"
@@ -140,7 +140,7 @@ export default function NewDashboard() {
         {/* Additional Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <StatCard
-            title="Total Profit - Investment Amount"
+            title="Net Profit"
             value={formatCurrency((stats?.totalProfit || 0) - (stats?.totalInvestmentAmount || 0))}
             icon={IndianRupee}
             change="+9.8%"

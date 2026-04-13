@@ -26,6 +26,15 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
+  // Handle navigation and auto-close sidebar on mobile
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    // On mobile (when isCollapsed is false and sidebar is open), close it after navigation
+    if (!isCollapsed && window.innerWidth < 1024) {
+      onToggle();
+    }
+  };
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'leads', label: 'Leads', icon: Users, path: '/leads' },
@@ -110,8 +119,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
           return (
             <button
               key={item.id}
-              onClick={() => navigate(item.path)}
-              className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 mb-2 ${
+              onClick={() => handleNavigation(item.path)}
+              className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 mb-2 relative group ${
                 isActive
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-300 hover:bg-slate-700 hover:text-white'
@@ -120,6 +129,13 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               <Icon className="w-5 h-5" />
               {!isCollapsed && (
                 <span className="ml-3 font-medium">{item.label}</span>
+              )}
+              {/* Tooltip for collapsed state */}
+              {isCollapsed && (
+                <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                  {item.label}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+                </div>
               )}
             </button>
           );
@@ -134,10 +150,14 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             {/* Expand Button - moved to top */}
             <button
               onClick={onToggle}
-              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-slate-400 hover:bg-slate-700 hover:text-white"
-              title="Expand Sidebar"
+              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-slate-400 hover:bg-slate-700 hover:text-white relative group"
             >
               <Menu className="w-5 h-5" />
+              {/* Tooltip */}
+              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                Expand Sidebar
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+              </div>
             </button>
 
             {/* User Icon */}
@@ -151,24 +171,32 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             
             {/* Settings Icon */}
             <button
-              onClick={() => navigate('/settings')}
-              className={`w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 ${
+              onClick={() => handleNavigation('/settings')}
+              className={`w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 relative group ${
                 location.pathname === '/settings'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25'
                   : 'text-slate-300 hover:bg-slate-700 hover:text-white'
               }`}
-              title="Settings"
             >
               <Settings className="w-5 h-5" />
+              {/* Tooltip */}
+              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                Settings
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+              </div>
             </button>
 
             {/* Logout Icon */}
             <button
               onClick={logout}
-              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-600/20 hover:text-red-300"
-              title="Logout"
+              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-600/20 hover:text-red-300 relative group"
             >
               <LogOut className="w-5 h-5" />
+              {/* Tooltip */}
+              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                Logout
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+              </div>
             </button>
           </div>
         ) : (
@@ -194,7 +222,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
             
             {/* Settings Button */}
             <button
-              onClick={() => navigate('/settings')}
+              onClick={() => handleNavigation('/settings')}
               className={`w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 mb-2 ${
                 location.pathname === '/settings'
                   ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25'

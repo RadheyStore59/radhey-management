@@ -143,7 +143,7 @@ export default function Dashboard() {
           </div>
           <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-400 to-emerald-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Net Profit</span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Gross Profit</span>
             <div className="flex items-center gap-2 relative z-10">
               <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500" />
               <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 break-words">{(stats?.totalProfit || 0).toLocaleString()}</span>
@@ -167,7 +167,7 @@ export default function Dashboard() {
           gradient="bg-gradient-to-br from-purple-500 to-purple-600"
         />
         <StatCard
-          title="Total Profit"
+          title="Gross Profit"
           value={formatCurrency(stats?.totalProfit || 0)}
           icon={IndianRupee}
           gradient="bg-gradient-to-br from-orange-500 to-red-500"
@@ -189,7 +189,7 @@ export default function Dashboard() {
             gradient="bg-gradient-to-br from-green-500 to-emerald-500"
           />
           <StatCard
-            title="Total Profit - Investment Amount"
+            title="Net Profit"
             value={formatCurrency((stats?.totalProfit || 0) - (stats?.totalInvestmentAmount || 0))}
             icon={IndianRupee}
             gradient="bg-gradient-to-br from-indigo-500 to-violet-500"

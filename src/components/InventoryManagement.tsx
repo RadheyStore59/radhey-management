@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import ConfirmDialog from './ConfirmDialog';
 import { showToast } from '../utils/toast';
 import SelectField from './SelectField';
+import SkeletonLoader, { TableSkeleton } from './SkeletonLoader';
 
 interface InventoryItem {
   id?: string;
@@ -281,8 +282,22 @@ export default function InventoryManagement() {
 
   if (loading && inventory.length === 0) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 flex items-center justify-center min-h-screen">
-        <div className="text-base sm:text-lg">Loading inventory...</div>
+      <div className="p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+        <div className="mb-6 sm:mb-8">
+          <SkeletonLoader height="h-10 sm:h-12" width="w-40 sm:w-48" className="mb-3" />
+          <SkeletonLoader height="h-5 sm:h-6" width="w-56 sm:w-64" />
+        </div>
+        <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-4 sm:p-6 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4">
+            <SkeletonLoader height="h-12" className="flex-1" />
+            <div className="flex gap-2">
+              <SkeletonLoader height="h-12" width="w-24 sm:w-32" />
+              <SkeletonLoader height="h-12" width="w-24 sm:w-32" />
+              <SkeletonLoader height="h-12" width="w-24 sm:w-32" />
+            </div>
+          </div>
+        </div>
+        <TableSkeleton rows={8} columns={8} />
       </div>
     );
   }
