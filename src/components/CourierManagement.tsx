@@ -131,8 +131,16 @@ export default function CourierManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (!isValidPhone10(formData.sender_phone) || !isValidPhone10(formData.recipient_phone)) {
-        showToast('Sender and recipient phone numbers must be exactly 10 digits.', 'error');
+      // Check if sender_phone is required in dynamic form config
+      const senderPhoneField = dynamicFields.find(f => f.key === 'sender_phone');
+      if (senderPhoneField?.required && !isValidPhone10(formData.sender_phone)) {
+        showToast('Sender phone number must be exactly 10 digits.', 'error');
+        return;
+      }
+      // Check if recipient_phone is required in dynamic form config
+      const recipientPhoneField = dynamicFields.find(f => f.key === 'recipient_phone');
+      if (recipientPhoneField?.required && !isValidPhone10(formData.recipient_phone)) {
+        showToast('Recipient phone number must be exactly 10 digits.', 'error');
         return;
       }
       // Keep legacy `total` and new `cost` in sync so UI/API show same amount.
@@ -551,10 +559,12 @@ export default function CourierManagement() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Sender Phone *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Sender Phone {dynamicFields.find(f => f.key === 'sender_phone')?.required && '*'}
+                  </label>
                   <input
                     type="text"
-                    required
+                    required={dynamicFields.find(f => f.key === 'sender_phone')?.required}
                     pattern="[0-9]{10}"
                     minLength={10}
                     maxLength={10}

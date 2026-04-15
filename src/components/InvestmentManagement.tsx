@@ -163,8 +163,16 @@ export default function InvestmentManagement() {
     setLoading(true);
 
     try {
-      if (!formData.vendor_name.trim() || !formData.particular.trim()) {
-        showToast('Vendor name and particular are required.', 'error');
+      // Check if vendor_name is required in dynamic form config
+      const vendorField = dynamicFields.find(f => f.key === 'vendor_name');
+      if (vendorField?.required && !formData.vendor_name.trim()) {
+        showToast('Vendor name is required.', 'error');
+        return;
+      }
+      // Check if particular is required in dynamic form config
+      const particularField = dynamicFields.find(f => f.key === 'particular');
+      if (particularField?.required && !formData.particular.trim()) {
+        showToast('Particular is required.', 'error');
         return;
       }
       if (Number(formData.unit) < 1) {
@@ -728,10 +736,12 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Vendor Name *</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">
+                      Vendor Name {dynamicFields.find(f => f.key === 'vendor_name')?.required && '*'}
+                    </label>
                     <input
                       type="text"
-                      required
+                      required={dynamicFields.find(f => f.key === 'vendor_name')?.required}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                       value={formData.vendor_name}
                       onChange={(e) => setFormData({ ...formData, vendor_name: e.target.value })}
@@ -739,10 +749,12 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Particular *</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">
+                      Particular {dynamicFields.find(f => f.key === 'particular')?.required && '*'}
+                    </label>
                     <input
                       type="text"
-                      required
+                      required={dynamicFields.find(f => f.key === 'particular')?.required}
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                       value={formData.particular}
                       onChange={(e) => setFormData({ ...formData, particular: e.target.value })}

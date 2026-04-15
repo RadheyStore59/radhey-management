@@ -96,7 +96,9 @@ export default function GstManagement() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (!formData.filing_month.trim()) {
+      // Check if filing_month is required in dynamic form config
+      const filingMonthField = dynamicFields.find(f => f.key === 'filing_month');
+      if (filingMonthField?.required && !formData.filing_month.trim()) {
         showToast('Filing month is required.', 'error');
         return;
       }
@@ -446,21 +448,25 @@ export default function GstManagement() {
             <form id="gst-form" onSubmit={handleSubmit} className="p-8 max-h-[70vh] overflow-y-auto space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Filing Month *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Filing Month {dynamicFields.find(f => f.key === 'filing_month')?.required && '*'}
+                  </label>
                   <input
                     type="text"
-                    required
+                    required={dynamicFields.find(f => f.key === 'filing_month')?.required}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.filing_month}
                     onChange={(e) => setFormData({ ...formData, filing_month: e.target.value })}
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Filing Year *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Filing Year {dynamicFields.find(f => f.key === 'filing_year')?.required && '*'}
+                  </label>
                   <input
                     type="text"
-                    required
+                    required={dynamicFields.find(f => f.key === 'filing_year')?.required}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.filing_year}
                     onChange={(e) => setFormData({ ...formData, filing_year: e.target.value })}

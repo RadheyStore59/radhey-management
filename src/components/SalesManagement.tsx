@@ -241,7 +241,9 @@ export default function SalesManagement() {
     setLoading(true);
 
     try {
-      if (!isValidPhone10(formData.phone_no)) {
+      // Check if phone_no is required in dynamic form config
+      const phoneField = dynamicFields.find(f => f.key === 'phone_no');
+      if (phoneField?.required && !isValidPhone10(formData.phone_no)) {
         showToast('Phone number must be exactly 10 digits.', 'error');
         return;
       }
@@ -1109,10 +1111,12 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Phone Number *</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">
+                      Phone Number {dynamicFields.find(f => f.key === 'phone_no')?.required && '*'}
+                    </label>
                     <input
                       type="text"
-                      required
+                      required={dynamicFields.find(f => f.key === 'phone_no')?.required}
                       inputMode="numeric"
                       pattern="[0-9]{10}"
                       minLength={10}

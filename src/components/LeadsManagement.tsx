@@ -142,11 +142,15 @@ export default function LeadsManagement() {
     setLoading(true);
 
     try {
-      if (!isValidPhone10(formData.mobile_number)) {
+      // Check if mobile_number is required in dynamic form config
+      const phoneField = dynamicFields.find(f => f.key === 'mobile_number');
+      if (phoneField?.required && !isValidPhone10(formData.mobile_number)) {
         showToast('Mobile number must be exactly 10 digits.', 'error');
         return;
       }
-      if (!isValidEmail(formData.email)) {
+      // Check if email is required in dynamic form config
+      const emailField = dynamicFields.find(f => f.key === 'email');
+      if (emailField?.required && !isValidEmail(formData.email)) {
         showToast('Please enter a valid email address.', 'error');
         return;
       }
@@ -538,11 +542,11 @@ export default function LeadsManagement() {
                 
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Mobile Number *
+                    Mobile Number {dynamicFields.find(f => f.key === 'mobile_number')?.required && '*'}
                   </label>
                   <input
                     type="tel"
-                    required
+                    required={dynamicFields.find(f => f.key === 'mobile_number')?.required}
                     pattern="[0-9]{10}"
                     minLength={10}
                     maxLength={10}
@@ -552,14 +556,14 @@ export default function LeadsManagement() {
                     onChange={(e) => setFormData({ ...formData, mobile_number: e.target.value })}
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Email *
+                    Email {dynamicFields.find(f => f.key === 'email')?.required && '*'}
                   </label>
                   <input
                     type="email"
-                    required
+                    required={dynamicFields.find(f => f.key === 'email')?.required}
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
