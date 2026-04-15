@@ -71,6 +71,7 @@ export default function SalesManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [clientPaymentFilter, setClientPaymentFilter] = useState('all');
+  const [phaseFilter, setPhaseFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [showForm, setShowForm] = useState(false);
@@ -82,13 +83,6 @@ export default function SalesManagement() {
   const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
   const [dynamicFields, setDynamicFields] = useState<DynamicFormField[]>([]);
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
-  const coreFieldKeys = new Set([
-    'invoice_number', 'radhey_invoice', 'order_date', 'order_taken_date', 'order_ready_date',
-    'product_name', 'customer_name', 'dealer_name', 'phone_no', 'reference', 'phase', 'deal', 'dispatch_date',
-    'quantity', 'buy_price', 'sell_price', 'profit', 'payment_by', 'payment_through',
-    'received_through_client', 'profit_given', 'remarks'
-  ]);
-  const extraDynamicFields = dynamicFields.filter((f) => !coreFieldKeys.has(f.key));
 
   const [formData, setFormData] = useState({
     invoice_number: '',
@@ -135,7 +129,7 @@ export default function SalesManagement() {
 
   useEffect(() => {
     filterSales();
-  }, [sales, searchTerm, dateFilter, clientPaymentFilter]);
+  }, [sales, searchTerm, dateFilter, clientPaymentFilter, phaseFilter]);
 
   useEffect(() => {
     const profit = formData.sell_price - formData.buy_price;
@@ -232,6 +226,10 @@ export default function SalesManagement() {
         }
         return true;
       });
+    }
+
+    if (phaseFilter !== 'all') {
+      filtered = filtered.filter(sale => sale.phase === phaseFilter);
     }
 
     setFilteredSales(filtered);
@@ -333,6 +331,17 @@ export default function SalesManagement() {
     } catch (error) {
       console.error('Error updating phase:', error);
       showToast('Error updating phase.', 'error');
+    }
+  };
+
+  const handlePaymentStatusChange = async (sale: Sale, status: string) => {
+    try {
+      await salesAPI.update(sale.id, { received_through_client: status });
+      setSales((prev) => prev.map((s) => (s.id === sale.id ? { ...s, received_through_client: status } : s)));
+      showToast('Payment status updated successfully.', 'success');
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      showToast('Error updating payment status.', 'error');
     }
   };
 
@@ -668,6 +677,15 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
 
             <div className="min-w-[180px] sm:min-w-[200px]">
               <SelectField
+                value={phaseFilter}
+                options={[{ value: 'all', label: 'All Phases' }, ...phaseOptions]}
+                onChange={setPhaseFilter}
+                placeholder="Phase"
+              />
+            </div>
+
+            <div className="min-w-[180px] sm:min-w-[200px]">
+              <SelectField
                 value={clientPaymentFilter}
                 options={paymentStatusOptions}
                 onChange={setClientPaymentFilter}
@@ -803,17 +821,34 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                       </span>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-center">
-                      {(!sale.received_through_client || sale.received_through_client.toLowerCase() === 'pending') ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-wider">
-                          <span className="w-1 h-1 rounded-full bg-rose-600 mr-1.5 animate-pulse"></span>
-                          Pending
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-wider" title={sale.received_through_client}>
-                          <span className="w-1 h-1 rounded-full bg-emerald-600 mr-1.5"></span>
-                          {sale.received_through_client.length > 10 ? 'Paid' : sale.received_through_client.toUpperCase()}
-                        </span>
-                      )}
+                      <div className="w-[124px] mx-auto relative flex items-center justify-center">
+                        {(() => {
+                          const paymentStatusField = dynamicFields.find(f => f.key === 'received_through_client' && f.type === 'select');
+                          const paymentStatusOptions = paymentStatusField?.options || ['Pending', 'Paid'];
+                          const currentValue = sale.received_through_client || '';
+                          const isPending = currentValue.toLowerCase() === 'pending' || currentValue === '';
+                          
+                          return (
+                            <>
+                              <select
+                                value={isPending ? 'Pending' : currentValue}
+                                onChange={(e) => handlePaymentStatusChange(sale, e.target.value)}
+                                className={`phase-select appearance-none w-full rounded-full border pl-7 pr-6 py-1 text-[10px] font-bold leading-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${isPending ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}
+                              >
+                                {paymentStatusOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <span className={`w-1.5 h-1.5 rounded-full ${isPending ? 'bg-rose-600 animate-pulse' : 'bg-emerald-600'}`}></span>
+                              </div>
+                              <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                            </>
+                          );
+                        })()}
+                      </div>
                     </td>
                     <td className="px-5 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1">
@@ -981,46 +1016,126 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
             </div>
             
             <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-8 space-y-8">
-              <section>
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Core Information</h3>
+              {/* Basic Information Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2">Basic Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Invoice Number</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">Invoice Number *</label>
                     <input
                       type="text"
                       required
-                      placeholder="e.g. INV-2024-001"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                       value={formData.invoice_number}
                       onChange={(e) => setFormData({ ...formData, invoice_number: e.target.value })}
+                      placeholder="Enter invoice number"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                     />
                   </div>
-                  
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Customer Name</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">Radhey Invoice</label>
+                    <input
+                      type="text"
+                      value={formData.radhey_invoice}
+                      onChange={(e) => setFormData({ ...formData, radhey_invoice: e.target.value })}
+                      placeholder="Enter radhey invoice"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Order Date *</label>
+                    <DatePickerField
+                      value={formData.order_date}
+                      onChange={(value) => setFormData({ ...formData, order_date: value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Order Taken Date *</label>
+                    <DatePickerField
+                      value={formData.order_taken_date}
+                      onChange={(value) => setFormData({ ...formData, order_taken_date: value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Order Ready Date *</label>
+                    <DatePickerField
+                      value={formData.order_ready_date}
+                      onChange={(value) => setFormData({ ...formData, order_ready_date: value })}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Dispatch Date *</label>
+                    <DatePickerField
+                      value={formData.dispatch_date}
+                      onChange={(value) => setFormData({ ...formData, dispatch_date: value })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Product & Customer Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2">Product & Customer Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Product Name *</label>
                     <input
                       type="text"
                       required
-                      placeholder="Enter full name"
+                      value={formData.product_name}
+                      onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
+                      placeholder="Enter product name"
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                      value={formData.customer_name}
-                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
                     />
                   </div>
-
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Customer Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.customer_name}
+                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                      placeholder="Enter customer name"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Dealer Name</label>
+                    <input
+                      type="text"
+                      value={formData.dealer_name}
+                      onChange={(e) => setFormData({ ...formData, dealer_name: e.target.value })}
+                      placeholder="Enter dealer name"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Phone Number *</label>
+                    <input
+                      type="text"
+                      required
+                      inputMode="numeric"
+                      pattern="[0-9]{10}"
+                      minLength={10}
+                      maxLength={10}
+                      title="Enter exactly 10 digits"
+                      value={formData.phone_no}
+                      onChange={(e) => setFormData({ ...formData, phone_no: e.target.value })}
+                      placeholder="Enter 10-digit phone number"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                    />
+                  </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-slate-700 ml-1">Reference</label>
                     <input
                       type="text"
-                      placeholder="Reference name / ID"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                       value={formData.reference}
                       onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
+                      placeholder="Enter reference"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                     />
                   </div>
-
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Status / Phase</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">Phase *</label>
                     <SelectField
                       value={formData.phase}
                       options={phaseOptions}
@@ -1028,133 +1143,113 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                       placeholder="Select phase"
                     />
                   </div>
-                  
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Mobile Number</label>
-                    <input
-                      type="tel"
-                      required
-                      pattern="[0-9]{10}"
-                      minLength={10}
-                      maxLength={10}
-                      title="Enter exactly 10 digits"
-                      placeholder="+91 XXXXX XXXXX"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                      value={formData.phone_no}
-                      onChange={(e) => setFormData({ ...formData, phone_no: e.target.value })}
-                    />
-                  </div>
-                  
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Sales Date</label>
-                    <DatePickerField
-                      value={formData.order_date}
-                      onChange={(value) => setFormData({ ...formData, order_date: value })}
-                    />
-                  </div>
                 </div>
-              </section>
+              </div>
 
-              <section>
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Product & Pricing</h3>
+              {/* Pricing Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2">Pricing & Quantity</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2 space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Product Description</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="What was sold?"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                      value={formData.product_name}
-                      onChange={(e) => setFormData({ ...formData, product_name: e.target.value })}
-                    />
-                  </div>
-                  
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Quantity</label>
+                    <label className="text-xs font-bold text-slate-700 ml-1">Quantity *</label>
                     <input
                       type="number"
                       min="1"
                       required
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-black"
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
+                      placeholder="Enter quantity"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 ml-1">Unit Cost (₹)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        required
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-bold text-slate-600"
-                        value={formData.buy_price}
-                        onChange={(e) => setFormData({ ...formData, buy_price: parseFloat(e.target.value) || 0 })}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-700 ml-1">Sale Price (₹)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        required
-                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-bold text-slate-900"
-                        value={formData.sell_price}
-                        onChange={(e) => setFormData({ ...formData, sell_price: parseFloat(e.target.value) || 0 })}
-                      />
-                    </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Buy Price *</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      value={formData.buy_price}
+                      onChange={(e) => setFormData({ ...formData, buy_price: parseFloat(e.target.value) || 0 })}
+                      placeholder="Enter buy price"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                    />
                   </div>
-
-                  <div className="md:col-span-2 bg-slate-50 rounded-2xl p-4 flex items-center justify-between border border-slate-100">
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Calculated Profit</span>
-                      <span className={`text-xl font-black ${formData.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                        ₹{formData.profit.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-end">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Transaction</span>
-                      <span className="text-xl font-black text-slate-900">
-                        ₹{(formData.sell_price * formData.quantity).toLocaleString()}
-                      </span>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Sell Price *</label>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      required
+                      value={formData.sell_price}
+                      onChange={(e) => setFormData({ ...formData, sell_price: parseFloat(e.target.value) || 0 })}
+                      placeholder="Enter sell price"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Calculated Profit</label>
+                    <div className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-black">
+                      ₹{formData.profit.toLocaleString()}
                     </div>
                   </div>
                 </div>
-              </section>
+              </div>
 
-              <section>
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Logistics & Settlement</h3>
+              {/* Payment Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2">Payment Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Dealer / Source</label>
-                    <input
-                      type="text"
-                      placeholder="Supplier name"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                      value={formData.dealer_name}
-                      onChange={(e) => setFormData({ ...formData, dealer_name: e.target.value })}
-                    />
+                    <label className="text-xs font-bold text-slate-700 ml-1">Payment By</label>
+                    {dynamicFields.find(f => f.key === 'payment_by' && f.type === 'select') ? (
+                      <SelectField
+                        value={formData.payment_by}
+                        onChange={(value) => setFormData({ ...formData, payment_by: value })}
+                        options={(dynamicFields.find(f => f.key === 'payment_by')?.options || []).map((opt) => ({ value: opt, label: opt }))}
+                        placeholder="Select payment by"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={formData.payment_by}
+                        onChange={(e) => setFormData({ ...formData, payment_by: e.target.value })}
+                        placeholder="Enter payment by"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                      />
+                    )}
                   </div>
-                  
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Payment Method</label>
-                    <input
-                      type="text"
-                      placeholder="Cash, UPI, etc."
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                      value={formData.payment_through}
-                      onChange={(e) => setFormData({ ...formData, payment_through: e.target.value })}
-                    />
+                    <label className="text-xs font-bold text-slate-700 ml-1">Payment Through</label>
+                    {dynamicFields.find(f => f.key === 'payment_through' && f.type === 'select') ? (
+                      <SelectField
+                        value={formData.payment_through}
+                        onChange={(value) => setFormData({ ...formData, payment_through: value })}
+                        options={(dynamicFields.find(f => f.key === 'payment_through')?.options || []).map((opt) => ({ value: opt, label: opt }))}
+                        placeholder="Select payment through"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={formData.payment_through}
+                        onChange={(e) => setFormData({ ...formData, payment_through: e.target.value })}
+                        placeholder="Enter payment through"
+                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                      />
+                    )}
                   </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Settlement Status</label>
-                    <div className="flex gap-2">
-                      <div className="w-[150px]">
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Payment Status</label>
+                    {dynamicFields.find(f => f.key === 'received_through_client' && f.type === 'select') ? (
+                      <SelectField
+                        value={formData.received_through_client}
+                        onChange={(value) => setFormData({ ...formData, received_through_client: value })}
+                        options={(dynamicFields.find(f => f.key === 'received_through_client')?.options || []).map((opt) => ({ value: opt, label: opt }))}
+                        placeholder="Select payment status"
+                      />
+                    ) : (
+                      <div className="space-y-2">
                         <SelectField
                           value={formData.received_through_client.toLowerCase() === 'pending' || formData.received_through_client === '' ? 'pending' : 'received'}
                           options={[
@@ -1168,59 +1263,107 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                               setFormData({ ...formData, received_through_client: 'Received' });
                             }
                           }}
+                          placeholder="Select payment status"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Payment details (e.g. GPay Ref)"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                          value={formData.received_through_client}
+                          onChange={(e) => setFormData({ ...formData, received_through_client: e.target.value })}
                         />
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Payment details (e.g. GPay Ref)"
-                        className="flex-1 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                        value={formData.received_through_client}
-                        onChange={(e) => setFormData({ ...formData, received_through_client: e.target.value })}
-                      />
-                    </div>
+                    )}
                   </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Sales Representative</label>
+                  <div className="space-y-1.5 md:col-span-2">
+                    <label className="text-xs font-bold text-slate-700 ml-1">Profit Given</label>
                     <input
                       type="text"
-                      placeholder="Who handled this sale?"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                      value={formData.payment_by}
-                      onChange={(e) => setFormData({ ...formData, payment_by: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 space-y-1.5">
-                    <label className="text-xs font-bold text-slate-700 ml-1">Partner Settlement Details</label>
-                    <input
-                      type="text"
-                      placeholder="e.g., All hisab clear to 11/04/2026 (3689/-) ayushi gave to yash online"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium text-slate-900"
                       value={formData.profit_given}
                       onChange={(e) => setFormData({ ...formData, profit_given: e.target.value })}
+                      placeholder="Enter profit given details"
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
                     />
-                    <p className="text-[10px] text-slate-400 mt-1">Enter settlement details with partner (date, amount, who gave to whom)</p>
                   </div>
                 </div>
-              </section>
-              
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 ml-1">Internal Remarks</label>
-                <textarea
-                  rows={3}
-                  placeholder="Any additional notes about this transaction..."
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
-                  value={formData.remarks}
-                  onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-                />
               </div>
 
-              <DynamicFields
-                fields={extraDynamicFields}
-                values={customFieldValues}
-                onChange={(key, value) => setCustomFieldValues((prev) => ({ ...prev, [key]: value }))}
-              />
+              {/* Remarks Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2">Additional Information</h3>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-700 ml-1">Remarks</label>
+                  <textarea
+                    rows={3}
+                    value={formData.remarks}
+                    onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                    placeholder="Enter any additional remarks"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Custom Fields */}
+              {dynamicFields.filter(f => f.enabled !== false && !formData.hasOwnProperty(f.key)).length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-2">Custom Fields</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {dynamicFields.filter(f => f.enabled !== false && !formData.hasOwnProperty(f.key)).map((field) => {
+                      const fieldValue = customFieldValues[field.key] || '';
+                      return (
+                        <div key={field.key} className="space-y-1.5">
+                          <label className="text-xs font-bold text-slate-700 ml-1">
+                            {field.label}{field.required ? ' *' : ''}
+                          </label>
+                          {field.type === 'textarea' ? (
+                            <textarea
+                              rows={3}
+                              required={!!field.required}
+                              value={fieldValue}
+                              onChange={(e) => setCustomFieldValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                              placeholder={field.placeholder || ''}
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                            />
+                          ) : field.type === 'select' ? (
+                            <SelectField
+                              value={String(fieldValue)}
+                              onChange={(value) => setCustomFieldValues((prev) => ({ ...prev, [field.key]: value }))}
+                              options={(field.options || []).map((opt) => ({ value: opt, label: opt }))}
+                              placeholder={`Select ${field.label}`}
+                              isClearable={!field.required}
+                            />
+                          ) : field.type === 'date' ? (
+                            <DatePickerField
+                              value={String(fieldValue)}
+                              onChange={(value) => setCustomFieldValues((prev) => ({ ...prev, [field.key]: value }))}
+                            />
+                          ) : field.type === 'number' ? (
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              required={!!field.required}
+                              value={fieldValue}
+                              onChange={(e) => setCustomFieldValues((prev) => ({ ...prev, [field.key]: parseFloat(e.target.value) || 0 }))}
+                              placeholder={field.placeholder || ''}
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                            />
+                          ) : (
+                            <input
+                              type="text"
+                              required={!!field.required}
+                              value={fieldValue}
+                              onChange={(e) => setCustomFieldValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                              placeholder={field.placeholder || ''}
+                              className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/30 transition-all text-sm font-medium"
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </form>
 
             <div className="px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
@@ -1251,114 +1394,177 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
       {/* View Details Modal */}
       {showViewModal && viewingSale && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col border border-slate-100">
-            <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-br from-blue-600 to-purple-600 text-white p-2.5 rounded-xl">
-                  <Calculator size={20} />
-                </div>
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col border border-slate-100">
+            {/* Header with solid color */}
+            <div className="bg-blue-600 px-8 py-6 text-white">
+              <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tight">Transaction Summary</h2>
-                  <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mt-0.5">#{viewingSale.invoice_number}</p>
+                  <h2 className="text-2xl font-black tracking-tight">Transaction Summary</h2>
+                  <p className="text-blue-100 text-sm font-medium mt-1">#{viewingSale.invoice_number}</p>
                 </div>
+                <button
+                  onClick={() => setShowViewModal(false)}
+                  className="p-2 hover:bg-white/20 rounded-xl transition-colors text-blue-100 hover:text-white"
+                >
+                  <Plus className="rotate-45" size={24} />
+                </button>
               </div>
-              <button 
-                onClick={() => setShowViewModal(false)}
-                className="p-2 hover:bg-white rounded-xl transition-colors text-slate-400 hover:text-slate-600 border border-transparent hover:border-slate-200"
-              >
-                <Plus className="rotate-45" size={24} />
-              </button>
             </div>
-            
-            <div className="p-8 grid grid-cols-2 gap-y-8 gap-x-12">
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Customer Details</p>
-                <p className="text-base font-black text-slate-900">{viewingSale.customer_name}</p>
-                <p className="text-sm font-medium text-slate-500">{viewingSale.phone_no}</p>
-                <p className="text-[11px] font-semibold text-slate-500">Reference: {viewingSale.reference || 'N/A'}</p>
-              </div>
 
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Order Date</p>
-                <p className="text-base font-black text-slate-900">{formatDateForDisplay(viewingSale.order_date)}</p>
-                <div className="mt-2">
-                  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${getPhaseBadgeClass(viewingSale.phase)}`}>
-                    {viewingSale.phase || 'Order Taken'}
-                  </span>
+            <div className="p-6 max-h-[70vh] overflow-y-auto bg-gradient-to-b from-slate-50 to-white">
+              {/* Key Stats Cards */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Revenue</p>
+                  <p className="text-xl font-black text-slate-900 mt-1">₹{(viewingSale.sell_price * viewingSale.quantity).toLocaleString()}</p>
                 </div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Added: {new Date(viewingSale.created_at).toLocaleDateString()}</p>
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Profit</p>
+                  <p className={`text-xl font-black mt-1 ${viewingSale.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>₹{viewingSale.profit.toLocaleString()}</p>
+                </div>
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Phase</p>
+                  <div className="mt-1">
+                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold border ${getPhaseBadgeClass(viewingSale.phase)}`}>
+                      {viewingSale.phase || 'Order Taken'}
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div className="col-span-2 p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Product Specification</p>
+              {/* Product Highlight Card */}
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-5 mb-6 border border-blue-100">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Product</p>
                     <p className="text-lg font-black text-slate-900">{viewingSale.product_name}</p>
+                    <p className="text-sm text-slate-600 mt-1">{viewingSale.customer_name} • {viewingSale.phone_no}</p>
                   </div>
-                  <div className="text-right space-y-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Quantity</p>
-                    <p className="text-lg font-black text-slate-900">× {viewingSale.quantity}</p>
-                  </div>
-                </div>
-                <div className="h-[1px] bg-slate-200"></div>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Unit Cost</p>
-                    <p className="text-sm font-bold text-slate-600">₹{viewingSale.buy_price.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sale Price</p>
-                    <p className="text-sm font-bold text-slate-900">₹{viewingSale.sell_price.toLocaleString()}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Revenue</p>
-                    <p className="text-sm font-black text-blue-600">₹{(viewingSale.sell_price * viewingSale.quantity).toLocaleString()}</p>
+                  <div className="text-right ml-4">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Qty × Price</p>
+                    <p className="text-lg font-black text-slate-900">{viewingSale.quantity} × ₹{viewingSale.sell_price.toLocaleString()}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Logistics</p>
-                <div className="space-y-2 mt-2">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Dealer:</span>
-                    <span className="text-slate-900 font-bold">{viewingSale.dealer_name || 'N/A'}</span>
+              {/* Info Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {/* Invoice Info */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                    Invoice Info
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Invoice #</span>
+                      <span className="text-xs font-bold text-slate-900">{viewingSale.invoice_number}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Radhey Invoice</span>
+                      <span className="text-xs font-bold text-slate-900">{viewingSale.radhey_invoice || 'N/A'}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Payment Mode:</span>
-                    <span className="text-slate-900 font-bold">{viewingSale.payment_through || 'N/A'}</span>
+                </div>
+
+                {/* Date Info */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-purple-600"></span>
+                    Dates
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Order Date</span>
+                      <span className="text-xs font-bold text-slate-900">{formatDateForDisplay(viewingSale.order_date)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Ready Date</span>
+                      <span className="text-xs font-bold text-slate-900">{formatDateForDisplay(viewingSale.order_ready_date)}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-500 font-medium">Sales Rep:</span>
-                    <span className="text-slate-900 font-bold">{viewingSale.payment_by || 'N/A'}</span>
+                </div>
+
+                {/* Pricing Breakdown */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-600"></span>
+                    Pricing
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Buy Price</span>
+                      <span className="text-xs font-bold text-slate-900">₹{viewingSale.buy_price.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Sell Price</span>
+                      <span className="text-xs font-bold text-slate-900">₹{viewingSale.sell_price.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payment Info */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-pink-600"></span>
+                    Payment
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Status</span>
+                      <span className="text-xs font-bold text-slate-900">{viewingSale.received_through_client || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-xs text-slate-500">Method</span>
+                      <span className="text-xs font-bold text-slate-900">{viewingSale.payment_through || 'N/A'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-1 flex flex-col">
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Financial Impact</p>
-                <div className="mt-4 p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex-1 flex flex-col justify-center">
-                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest text-center mb-1">Total Net Profit</p>
-                  <p className="text-3xl font-black text-emerald-600 text-center">₹{viewingSale.profit.toLocaleString()}</p>
+              {/* Additional Details */}
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+                <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">Additional Details</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex justify-between">
+                    <span className="text-xs text-slate-500">Dealer</span>
+                    <span className="text-xs font-bold text-slate-900">{viewingSale.dealer_name || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-xs text-slate-500">Reference</span>
+                    <span className="text-xs font-bold text-slate-900">{viewingSale.reference || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-xs text-slate-500">Payment By</span>
+                    <span className="text-xs font-bold text-slate-900">{viewingSale.payment_by || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-xs text-slate-500">Profit Given</span>
+                    <span className="text-xs font-bold text-slate-900">{viewingSale.profit_given || 'N/A'}</span>
+                  </div>
                 </div>
               </div>
 
+              {/* Remarks */}
               {viewingSale.remarks && (
-                <div className="col-span-2 space-y-1">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em]">Remarks / Notes</p>
-                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium italic">"{viewingSale.remarks}"</p>
-                  </div>
+                <div className="mt-4 bg-amber-50 rounded-2xl p-4 border border-amber-100">
+                  <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2">Remarks</p>
+                  <p className="text-sm text-slate-700 leading-relaxed font-medium">"{viewingSale.remarks}"</p>
                 </div>
               )}
+
+              {/* Footer */}
+              <div className="mt-4 pt-4 border-t border-slate-200 text-center">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Created: {new Date(viewingSale.created_at).toLocaleDateString()}</p>
+              </div>
             </div>
 
-            <div className="px-4 sm:px-8 py-6 border-t border-slate-100 bg-slate-50/50 flex justify-end">
-              <button 
+            <div className="px-6 py-4 bg-white border-t border-slate-100 flex justify-end">
+              <button
                 onClick={() => setShowViewModal(false)}
-                className="px-6 sm:px-8 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg active:scale-95"
+                className="px-8 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg active:scale-95"
               >
-                Close Summary
+                Close
               </button>
             </div>
           </div>

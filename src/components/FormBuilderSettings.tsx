@@ -98,7 +98,16 @@ export default function FormBuilderSettings() {
               />
             </div>
             <input className="px-3 py-2 border rounded-lg" placeholder="Placeholder" value={field.placeholder || ''} onChange={(e) => updateField(idx, { placeholder: e.target.value })} />
-            <input className="px-3 py-2 border rounded-lg" placeholder="Options (comma separated)" value={(field.options || []).join(',')} onChange={(e) => updateField(idx, { options: e.target.value.split(',').map((x) => x.trim()).filter(Boolean) })} />
+            <input 
+              className="px-3 py-2 border rounded-lg" 
+              placeholder="Options (comma separated)" 
+              defaultValue={(field.options || []).join(', ')} 
+              onBlur={(e) => {
+                const optionsStr = e.target.value;
+                const options = optionsStr.split(',').map(x => x.trim()).filter(x => x.length > 0);
+                updateField(idx, { options });
+              }}
+            />
             <div className="flex items-center justify-between">
               <label className="text-sm flex items-center gap-2"><input type="checkbox" checked={!!field.required} onChange={(e) => updateField(idx, { required: e.target.checked })} /> Required</label>
               <button onClick={() => setFields((prev) => prev.filter((_, i) => i !== idx))} className="text-red-600">

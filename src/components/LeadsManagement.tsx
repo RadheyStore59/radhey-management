@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Search, Download, Upload, AlertTriangle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Download, Upload, AlertTriangle, TrendingUp, TrendingDown, ChevronLeft, ChevronRight, Eye, ChevronDown } from 'lucide-react';
 import { Lead } from '../types';
 import { leadsAPI, formConfigAPI } from '../utils/api';
 import * as XLSX from 'xlsx';
@@ -222,6 +222,17 @@ export default function LeadsManagement() {
     }
   };
 
+  const handleStatusChange = async (lead: Lead, status: Lead['status']) => {
+    try {
+      await leadsAPI.update(lead.id, { status });
+      setLeads((prev) => prev.map((l) => (l.id === lead.id ? { ...l, status } : l)));
+      showToast('Status updated successfully.', 'success');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      showToast('Error updating status.', 'error');
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       lead_name: '',
@@ -379,14 +390,27 @@ export default function LeadsManagement() {
                         {lead.lead_source}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}>
-                        {lead.status === 'New' && <AlertCircle className="w-3 h-3 mr-1" />}
-                        {lead.status === 'Contacted' && <FileText className="w-3 h-3 mr-1" />}
-                        {lead.status === 'Converted' && <CheckCircle className="w-3 h-3 mr-1" />}
-                        {lead.status === 'Lost' && <AlertCircle className="w-3 h-3 mr-1" />}
-                        {lead.status}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="w-[124px] mx-auto relative flex items-center justify-center">
+                        <select
+                          value={lead.status}
+                          onChange={(e) => handleStatusChange(lead, e.target.value as Lead['status'])}
+                          className={`phase-select appearance-none w-full rounded-full border pl-7 pr-6 py-1 text-[10px] font-bold leading-4 focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${getStatusColor(lead.status)}`}
+                        >
+                          {statusOptions.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                          {lead.status === 'New' && <AlertCircle className="w-3 h-3" />}
+                          {lead.status === 'Contacted' && <FileText className="w-3 h-3" />}
+                          {lead.status === 'Converted' && <CheckCircle className="w-3 h-3" />}
+                          {lead.status === 'Lost' && <AlertCircle className="w-3 h-3" />}
+                        </div>
+                        <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                       <div className="flex items-center gap-1">
