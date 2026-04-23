@@ -139,6 +139,7 @@ export interface DashboardStats {
   totalStockQuantity: number;
   totalStockValue: number;
   totalInvestmentAmount: number;
+  pendingPaymentAmount: number;
   activeLeads: number;
 }
 

@@ -85,6 +85,14 @@ router.get('/', async (req, res) => {
     const totalQuantity = filteredSales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
     const totalInvestmentAmount = filteredInvestments.reduce((sum, inv) => sum + (inv.total || 0), 0);
     
+    // Pending payments calculation
+    const pendingPayments = filteredSales.filter(sale => {
+      const paymentStatus = (sale.payment_by || '').toLowerCase();
+      const receivedStatus = (sale.received_through_client || '').toLowerCase();
+      return paymentStatus === 'pending' || paymentStatus === '' || receivedStatus === 'pending' || receivedStatus === '';
+    });
+    const pendingPaymentAmount = pendingPayments.reduce((sum, sale) => sum + (sale.sell_price || 0), 0);
+    
     // Stock statistics
     const totalStockQuantity = filteredStockItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
     const totalStockValue = filteredStockItems.reduce((sum, item) => sum + ((item.quantity || 0) * (item.purchase_price || 0)), 0);
@@ -155,6 +163,7 @@ router.get('/', async (req, res) => {
       totalStockValue,
       totalInvestments,
       totalInvestmentAmount,
+      pendingPaymentAmount,
       newLeads,
       activeLeads,
       percentageChanges: {

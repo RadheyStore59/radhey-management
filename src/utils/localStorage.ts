@@ -141,6 +141,14 @@ export class LocalStorageDB {
     const totalProfit = sales.reduce((sum, sale) => sum + (sale.profit || 0), 0);
     const lowStockItems = inventory.filter(item => item.stock_quantity <= item.minimum_stock_level).length;
     
+    // Pending payments calculation
+    const pendingPayments = sales.filter(sale => {
+      const paymentStatus = (sale.payment_by || '').toLowerCase();
+      const receivedStatus = (sale.received_through_client || '').toLowerCase();
+      return paymentStatus === 'pending' || paymentStatus === '' || receivedStatus === 'pending' || receivedStatus === '';
+    });
+    const pendingPaymentAmount = pendingPayments.reduce((sum, sale) => sum + (sale.sell_price || 0), 0);
+    
     return {
       totalLeads: leads.length,
       totalSales: sales.length,
@@ -152,6 +160,7 @@ export class LocalStorageDB {
       totalStockQuantity: inventory.reduce((sum, item) => sum + (item.stock_quantity || 0), 0),
       totalStockValue: inventory.reduce((sum, item) => sum + ((item.stock_quantity || 0) * (item.purchase_price || 0)), 0),
       totalInvestmentAmount: 0, // Add logic if needed
+      pendingPaymentAmount,
       activeLeads: leads.filter(lead => lead.status === 'New' || lead.status === 'Contacted').length
     };
   }
