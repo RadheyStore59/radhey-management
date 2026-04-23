@@ -74,3 +74,12 @@ select.phase-select::-ms-expand {
   border-radius: 8px !important;
 }
 
+/* Datepicker popper - ensure it appears above all other elements */
+.app-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.app-datepicker-popper .react-datepicker {
+  z-index: 9999 !important;
+}
+

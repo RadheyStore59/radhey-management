@@ -143,24 +143,24 @@ export default function Dashboard() {
           <h1 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight leading-tight sm:leading-normal">Hi, {user?.name || 'User'}</h1>
           <p className="text-slate-500 font-medium text-base sm:text-lg">Welcome to your business management dashboard</p>
         </div>
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <div className="flex items-center gap-2">
-            <div className="relative group min-w-[140px] sm:min-w-[160px]">
+            <div className="relative group w-[120px] sm:w-[160px]">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
               <DatePickerField
                 value={dateRange.startDate}
                 onChange={(value) => setDateRange(prev => ({ ...prev, startDate: value }))}
-                placeholder="From Date"
-                className="pl-10"
+                placeholder="From"
+                className="pl-10 pr-2 py-2 sm:py-3 text-xs sm:text-sm"
               />
             </div>
-            <div className="relative group min-w-[140px] sm:min-w-[160px]">
+            <div className="relative group w-[120px] sm:w-[160px]">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
               <DatePickerField
                 value={dateRange.endDate}
                 onChange={(value) => setDateRange(prev => ({ ...prev, endDate: value }))}
-                placeholder="To Date"
-                className="pl-10"
+                placeholder="To"
+                className="pl-10 pr-2 py-2 sm:py-3 text-xs sm:text-sm"
               />
             </div>
             {(dateRange.startDate || dateRange.endDate) && (

@@ -39,9 +39,10 @@ export default function DatePickerField({
       placeholderText={placeholder}
       required={required}
       className={`w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm font-medium ${className}`}
-      popperClassName="app-datepicker-popper"
+      popperClassName="app-datepicker-popper z-[9999]"
       calendarClassName="app-datepicker"
       showPopperArrow={false}
+      popperPlacement="bottom-start"
     />
   );
 }
