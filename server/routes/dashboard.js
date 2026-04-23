@@ -3,6 +3,7 @@ const router = express.Router();
 const Sale = require('../models/Sale');
 const Investment = require('../models/investment');
 const Lead = require('../models/lead');
+const StockItem = require('../models/stockItem');
 const { requireAuth } = require('../middleware/auth');
 
 router.use(requireAuth);
@@ -25,24 +26,73 @@ const percentChange = (current, previous) => {
 // GET dashboard stats
 router.get('/', async (req, res) => {
   try {
-    // Get counts
-    const totalLeads = await Lead.countDocuments({});
-    const totalSales = await Sale.countDocuments({});
-    const totalInvestments = await Investment.countDocuments({});
+    const { startDate, endDate } = req.query;
     
-    // Calculate totals
+    console.log('Dashboard API - Date range:', { startDate, endDate });
+    
+    // Get all data first
     const sales = await Sale.find({});
     const investments = await Investment.find({});
     const leads = await Lead.find({});
+    const stockItems = await StockItem.find({});
     
-    const totalRevenue = sales.reduce((sum, sale) => sum + (sale.sell_price || 0), 0);
-    const totalProfit = sales.reduce((sum, sale) => sum + (sale.profit || 0), 0);
-    const totalQuantity = sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
-    const totalInvestmentAmount = investments.reduce((sum, inv) => sum + (inv.total || 0), 0);
+    // Get counts
+    const totalLeads = leads.length;
+    const totalSales = sales.length;
+    const totalInvestments = investments.length;
+    const totalStockItems = stockItems.length;
+    
+    // Filter by date range if provided
+    let filteredSales = sales;
+    let filteredInvestments = investments;
+    let filteredLeads = leads;
+    let filteredStockItems = stockItems;
+    
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      filteredSales = sales.filter(sale => {
+        const saleDate = new Date(sale.order_date);
+        return saleDate >= start && saleDate <= end;
+      });
+      
+      filteredInvestments = investments.filter(inv => {
+        const invDate = new Date(inv.date);
+        return invDate >= start && invDate <= end;
+      });
+      
+      filteredLeads = leads.filter(lead => {
+        const leadDate = new Date(lead.lead_date);
+        return leadDate >= start && leadDate <= end;
+      });
+      
+      filteredStockItems = stockItems.filter(item => {
+        const itemDate = new Date(item.date_received);
+        return itemDate >= start && itemDate <= end;
+      });
+      
+      console.log('Dashboard API - Filtered counts:', { 
+        sales: filteredSales.length, 
+        investments: filteredInvestments.length, 
+        leads: filteredLeads.length, 
+        stock: filteredStockItems.length 
+      });
+    }
+    
+    const totalRevenue = filteredSales.reduce((sum, sale) => sum + (sale.sell_price || 0), 0);
+    const totalProfit = filteredSales.reduce((sum, sale) => sum + (sale.profit || 0), 0);
+    const totalQuantity = filteredSales.reduce((sum, sale) => sum + (sale.quantity || 0), 0);
+    const totalInvestmentAmount = filteredInvestments.reduce((sum, inv) => sum + (inv.total || 0), 0);
+    
+    // Stock statistics
+    const totalStockQuantity = filteredStockItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const totalStockValue = filteredStockItems.reduce((sum, item) => sum + ((item.quantity || 0) * (item.purchase_price || 0)), 0);
+    const lowStockItems = filteredStockItems.filter(item => (item.quantity || 0) <= 5).length;
     
     // Lead status counts
-    const newLeads = leads.filter(lead => lead.status === 'New').length;
-    const activeLeads = leads.filter(lead => lead.status === 'Contacted').length;
+    const newLeads = filteredLeads.filter(lead => lead.status === 'New').length;
+    const activeLeads = filteredLeads.filter(lead => lead.status === 'Contacted').length;
 
     // Dynamic percentage calculation: current 30 days vs previous 30 days
     const today = new Date();
@@ -99,8 +149,10 @@ router.get('/', async (req, res) => {
       totalQuantity,
       totalRevenue,
       totalProfit,
-      totalInventoryItems: 0,
-      lowStockItems: 0,
+      totalInventoryItems: totalStockItems,
+      lowStockItems,
+      totalStockQuantity,
+      totalStockValue,
       totalInvestments,
       totalInvestmentAmount,
       newLeads,

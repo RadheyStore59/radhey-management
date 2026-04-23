@@ -5,7 +5,7 @@ import { DynamicFormField, FormModule } from '../types/formConfig';
 import { showToast } from '../utils/toast';
 import SelectField from './SelectField';
 
-const modules: FormModule[] = ['leads', 'sales', 'investments', 'gst', 'courier'];
+const modules: FormModule[] = ['leads', 'sales', 'investments', 'gst', 'courier', 'stock'];
 
 const emptyField = (): DynamicFormField => ({
   key: '',

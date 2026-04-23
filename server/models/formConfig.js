@@ -15,7 +15,7 @@ const formConfigSchema = new mongoose.Schema({
   module: {
     type: String,
     required: true,
-    enum: ['leads', 'sales', 'investments', 'gst', 'courier'],
+    enum: ['leads', 'sales', 'investments', 'gst', 'courier', 'stock'],
     unique: true,
     index: true,
   },

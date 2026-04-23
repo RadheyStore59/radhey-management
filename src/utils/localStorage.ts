@@ -149,6 +149,8 @@ export class LocalStorageDB {
       totalInventoryItems: inventory.length,
       lowStockItems,
       totalQuantity: sales.reduce((sum, sale) => sum + (sale.quantity || 0), 0),
+      totalStockQuantity: inventory.reduce((sum, item) => sum + (item.stock_quantity || 0), 0),
+      totalStockValue: inventory.reduce((sum, item) => sum + ((item.stock_quantity || 0) * (item.purchase_price || 0)), 0),
       totalInvestmentAmount: 0, // Add logic if needed
       activeLeads: leads.filter(lead => lead.status === 'New' || lead.status === 'Contacted').length
     };

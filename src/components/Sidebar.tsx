@@ -11,7 +11,8 @@ import {
   X,
   Building,
   FileText,
-  Package
+  Package,
+  Archive
 } from 'lucide-react';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import logoPng from '../assets/logo.png';
@@ -40,6 +41,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     { id: 'leads', label: 'Leads', icon: Users, path: '/leads' },
     { id: 'sales', label: 'Sales', icon: TrendingUp, path: '/sales' },
     { id: 'investment', label: 'Investment', icon: Target, path: '/investments' },
+    { id: 'stock', label: 'Stock', icon: Archive, path: '/stock' },
     { id: 'gst', label: 'GST Monthly Filing', icon: FileText, path: '/gst' },
     { id: 'courier', label: 'Courier Cost', icon: Package, path: '/courier' },
   ];
@@ -58,15 +60,14 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Radhey Business Management Branding */}
       <div className={`border-b border-slate-700/80 ${isCollapsed ? 'px-3 py-4' : 'px-4 py-4'}`}>
         {isCollapsed ? (
-          // Collapsed state - only logo, centered
-          <div className="flex justify-center items-center">
+          // Collapsed state - logo and expand button at top
+          <div className="flex flex-col items-center gap-3">
             <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-[0_8px_18px_rgba(0,0,0,0.22)] overflow-hidden p-1 ring-2 ring-white/20">
               <img 
                 src={logoPng} 
                 alt="Radhey Business Management Logo" 
                 className="w-full h-full object-cover rounded-full"
                 onError={(e) => {
-                  // Fallback to Building icon if logo fails to load
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                   const fallback = target.nextElementSibling as HTMLElement;
@@ -75,9 +76,19 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               />
               <Building className="w-5 h-5 text-blue-600 hidden" />
             </div>
+            <button
+              onClick={onToggle}
+              className="p-2 rounded-lg hover:bg-slate-700 transition-colors text-slate-400 hover:text-white relative group"
+            >
+              <Menu className="w-5 h-5" />
+              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                Expand Sidebar
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+              </div>
+            </button>
           </div>
         ) : (
-          // Expanded state - logo, name, and toggle button
+          // Expanded state - logo, name, and close button
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-10 h-10 shrink-0 bg-white rounded-full flex items-center justify-center shadow-[0_8px_18px_rgba(0,0,0,0.22)] overflow-hidden p-1 ring-2 ring-white/20">
@@ -86,7 +97,6 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
                   alt="Radhey Business Management Logo" 
                   className="w-full h-full object-cover rounded-full"
                   onError={(e) => {
-                    // Fallback to Building icon if logo fails to load
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
                     const fallback = target.nextElementSibling as HTMLElement;
@@ -145,21 +155,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       {/* Bottom Section - User & Actions */}
       <div className="p-4 border-t border-slate-700">
         {isCollapsed ? (
-          // Collapsed state - expand button, user icon, settings, logout
+          // Collapsed state - user icon, settings, logout
           <div className="flex flex-col gap-2">
-            {/* Expand Button - moved to top */}
-            <button
-              onClick={onToggle}
-              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-slate-400 hover:bg-slate-700 hover:text-white relative group"
-            >
-              <Menu className="w-5 h-5" />
-              {/* Tooltip */}
-              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
-                Expand Sidebar
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
-              </div>
-            </button>
-
             {/* User Icon */}
             <div className="flex justify-center">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">

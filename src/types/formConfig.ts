@@ -1,4 +1,4 @@
-export type FormModule = 'leads' | 'sales' | 'investments' | 'gst' | 'courier';
+export type FormModule = 'leads' | 'sales' | 'investments' | 'gst' | 'courier' | 'stock';
 
 export type FormFieldType = 'text' | 'number' | 'date' | 'textarea' | 'select';
 

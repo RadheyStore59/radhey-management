@@ -74,6 +74,20 @@ const DEFAULT_FIELDS = {
     { key: 'status', label: 'Status', type: 'select', required: true, enabled: true, order: 10, options: ['Pending', 'Completed', 'Cancelled', 'Refunded'] },
     { key: 'remarks', label: 'Remarks', type: 'textarea', required: false, enabled: true, order: 11 },
   ],
+  stock: [
+    { key: 'name', label: 'Item Name', type: 'text', required: true, enabled: true, order: 0 },
+    { key: 'sku', label: 'SKU', type: 'text', required: true, enabled: true, order: 1 },
+    { key: 'category_id', label: 'Category', type: 'select', required: true, enabled: true, order: 2, options: [] },
+    { key: 'brand_id', label: 'Brand', type: 'select', required: true, enabled: true, order: 3, options: [] },
+    { key: 'dealer_id', label: 'Dealer', type: 'select', required: true, enabled: true, order: 4, options: [] },
+    { key: 'quantity', label: 'Quantity', type: 'number', required: true, enabled: true, order: 5 },
+    { key: 'unit', label: 'Unit', type: 'text', required: true, enabled: true, order: 6 },
+    { key: 'purchase_price', label: 'Purchase Price', type: 'number', required: true, enabled: true, order: 7 },
+    { key: 'date_received', label: 'Date Received', type: 'date', required: true, enabled: true, order: 8 },
+    { key: 'expiry_date', label: 'Expiry Date', type: 'date', required: false, enabled: true, order: 9 },
+    { key: 'description', label: 'Description', type: 'textarea', required: false, enabled: true, order: 10 },
+    { key: 'notes', label: 'Notes', type: 'textarea', required: false, enabled: true, order: 11 },
+  ],
 };
 
 router.get('/:module', async (req, res) => {

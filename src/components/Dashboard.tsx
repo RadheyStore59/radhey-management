@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ShoppingCart,
   Users,
   IndianRupee,
   Target,
-  Activity
+  Activity,
+  Package,
+  Calendar,
+  X
 } from 'lucide-react';
 import { DashboardStats } from '../types';
 import { dashboardAPI } from '../utils/api';
-import SkeletonLoader, { StatsCardSkeleton, TableSkeleton } from './SkeletonLoader';
+import SkeletonLoader, { StatsCardSkeleton } from './SkeletonLoader';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
+import DatePickerField from './DatePickerField';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -20,21 +24,27 @@ export default function Dashboard() {
   console.log('Dashboard - User name:', user?.name);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
-      const data = await dashboardAPI.getStats();
+      const params: any = {};
+      if (dateRange.startDate) params.startDate = dateRange.startDate;
+      if (dateRange.endDate) params.endDate = dateRange.endDate;
+      console.log('Dashboard - Fetching with params:', params);
+      const data = await dashboardAPI.getStats(params);
+      console.log('Dashboard - Received data:', data);
       setStats(data);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setLoading(false);
     }
-  };
+  }, [dateRange]);
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
   if (loading) {
     return (
@@ -133,6 +143,35 @@ export default function Dashboard() {
           <p className="text-slate-500 font-medium text-base sm:text-lg">Welcome to your business management dashboard</p>
         </div>
         <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2">
+            <div className="relative group min-w-[140px] sm:min-w-[160px]">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
+              <DatePickerField
+                value={dateRange.startDate}
+                onChange={(value) => setDateRange(prev => ({ ...prev, startDate: value }))}
+                placeholder="From Date"
+                className="pl-10"
+              />
+            </div>
+            <div className="relative group min-w-[140px] sm:min-w-[160px]">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500" size={16} />
+              <DatePickerField
+                value={dateRange.endDate}
+                onChange={(value) => setDateRange(prev => ({ ...prev, endDate: value }))}
+                placeholder="To Date"
+                className="pl-10"
+              />
+            </div>
+            {(dateRange.startDate || dateRange.endDate) && (
+              <button
+                onClick={() => setDateRange({ startDate: '', endDate: '' })}
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                title="Clear Date Filter"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
           <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-400 to-blue-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
             <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest relative z-10">Total Revenue</span>
@@ -183,10 +222,32 @@ export default function Dashboard() {
         {/* Secondary Stats Grid - 3 cards in second row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           <StatCard
-            title="Total Quantity"
+            title="Total Stock Items"
+            value={stats?.totalInventoryItems || 0}
+            icon={Package}
+            gradient="bg-gradient-to-br from-green-500 to-emerald-500"
+          />
+          <StatCard
+            title="Total Stock Quantity"
+            value={stats?.totalStockQuantity || 0}
+            icon={ShoppingCart}
+            gradient="bg-gradient-to-br from-blue-500 to-cyan-500"
+          />
+          <StatCard
+            title="Total Quantity Sold"
             value={stats?.totalQuantity || 0}
             icon={ShoppingCart}
-            gradient="bg-gradient-to-br from-green-500 to-emerald-500"
+            gradient="bg-gradient-to-br from-purple-500 to-pink-500"
+          />
+        </div>
+
+        {/* Stock Value Card */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+          <StatCard
+            title="Total Stock Value"
+            value={formatCurrency(stats?.totalStockValue || 0)}
+            icon={IndianRupee}
+            gradient="bg-gradient-to-br from-purple-500 to-pink-500"
           />
           <StatCard
             title="Net Profit"

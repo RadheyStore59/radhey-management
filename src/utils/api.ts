@@ -145,7 +145,10 @@ export const leadsAPI = {
 
 // Dashboard API
 export const dashboardAPI = {
-  getStats: () => apiRequest('/dashboard'),
+  getStats: (params?: any) => {
+    const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
+    return apiRequest(`/dashboard${queryString}`);
+  },
 };
 
 // GST API
@@ -181,10 +184,10 @@ export const authAPI = {
 
 // Dynamic Form Config API
 export const formConfigAPI = {
-  getByModule: (module: 'leads' | 'sales' | 'investments' | 'gst' | 'courier') =>
+  getByModule: (module: 'leads' | 'sales' | 'investments' | 'gst' | 'courier' | 'stock') =>
     apiRequest(`/form-configs/${module}`),
   saveByModule: (
-    module: 'leads' | 'sales' | 'investments' | 'gst' | 'courier',
+    module: 'leads' | 'sales' | 'investments' | 'gst' | 'courier' | 'stock',
     fields: any[]
   ) =>
     apiRequest(`/form-configs/${module}`, {
@@ -217,6 +220,86 @@ export const usersAPI = {
     }),
 };
 
+// Stock Management APIs
+export const stockAPI = {
+  getAll: (params?: { search?: string; category?: string; brand?: string; dealer?: string }) => {
+    const queryString = new URLSearchParams(params as any).toString();
+    return apiRequest(`/stock-items${queryString ? '?' + queryString : ''}`);
+  },
+  getById: (id: string) => apiRequest(`/stock-items/${id}`),
+  create: (data: any) => 
+    apiRequest('/stock-items', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) => 
+    apiRequest(`/stock-items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) => 
+    apiRequest(`/stock-items/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+export const categoryAPI = {
+  getAll: () => apiRequest('/categories'),
+  getById: (id: string) => apiRequest(`/categories/${id}`),
+  create: (data: any) => 
+    apiRequest('/categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) => 
+    apiRequest(`/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) => 
+    apiRequest(`/categories/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+export const brandAPI = {
+  getAll: () => apiRequest('/brands'),
+  getById: (id: string) => apiRequest(`/brands/${id}`),
+  create: (data: any) => 
+    apiRequest('/brands', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) => 
+    apiRequest(`/brands/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) => 
+    apiRequest(`/brands/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
+export const dealerAPI = {
+  getAll: () => apiRequest('/dealers'),
+  getById: (id: string) => apiRequest(`/dealers/${id}`),
+  create: (data: any) => 
+    apiRequest('/dealers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) => 
+    apiRequest(`/dealers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) => 
+    apiRequest(`/dealers/${id}`, {
+      method: 'DELETE',
+    }),
+};
+
 export default {
   salesAPI,
   investmentsAPI,
@@ -227,4 +310,8 @@ export default {
   authAPI,
   formConfigAPI,
   usersAPI,
+  stockAPI,
+  categoryAPI,
+  brandAPI,
+  dealerAPI,
 };

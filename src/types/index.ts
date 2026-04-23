@@ -136,6 +136,8 @@ export interface DashboardStats {
   totalInventoryItems: number;
   lowStockItems: number;
   totalQuantity: number;
+  totalStockQuantity: number;
+  totalStockValue: number;
   totalInvestmentAmount: number;
   activeLeads: number;
 }

@@ -31,6 +31,7 @@ app.use('/api/gst', require('./routes/gst'));
 app.use('/api/courier', require('./routes/courier'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/form-configs', require('./routes/formConfigs'));
+app.use('/api/stock-items', require('./routes/stockItems'));
 
 // Health route
 app.get('/api/health', (req, res) => {

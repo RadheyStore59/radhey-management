@@ -26,7 +26,8 @@ const selectStyles: StylesConfig<SelectOption, false> = {
   }),
   valueContainer: (base) => ({ ...base, paddingLeft: 12, paddingRight: 12 }),
   indicatorSeparator: () => ({ display: 'none' }),
-  menu: (base) => ({ ...base, borderRadius: 12, overflow: 'hidden', zIndex: 60 }),
+  menu: (base) => ({ ...base, borderRadius: 12, overflow: 'hidden', zIndex: 9999 }),
+  menuPortal: (base) => ({ ...base, zIndex: 9999 }),
   option: (base, state) => ({
     ...base,
     backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#eff6ff' : 'white',
@@ -53,6 +54,8 @@ export default function SelectField({
       isClearable={isClearable}
       styles={selectStyles}
       classNamePrefix="app-select"
+      menuPortalTarget={document.body}
+      menuPosition="fixed"
     />
   );
 }
