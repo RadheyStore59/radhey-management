@@ -626,7 +626,7 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
             </div>
           </div>
         </div>
-        <TableSkeleton rows={8} columns={7} />
+        <TableSkeleton rows={8} columns={11} />
       </div>
     );
   }

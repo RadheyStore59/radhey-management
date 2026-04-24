@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/LocalStorageAuthContext';
 import { showToast } from '../utils/toast';
 import { stockAPI, formConfigAPI } from '../utils/api';
 import ConfirmDialog from './ConfirmDialog';
-import TableSkeleton from './SkeletonLoader';
+import SkeletonLoader, { TableSkeleton } from './SkeletonLoader';
 import SelectField from './SelectField';
 import { DynamicFormField } from '../types/formConfig';
 
@@ -124,7 +124,7 @@ export default function StockManagement() {
     }
   };
 
-  const handleEdit = (item: StockItem) => {
+  const editItem = (item: StockItem) => {
     setEditingItem(item);
     setFormData({
       name: item.name,
@@ -140,6 +140,7 @@ export default function StockManagement() {
       expiry_date: item.expiry_date ? item.expiry_date.split('T')[0] : '',
       notes: item.notes || ''
     });
+    setCustomFieldValues({});
     setShowForm(true);
   };
 
@@ -171,6 +172,7 @@ export default function StockManagement() {
       expiry_date: '',
       notes: ''
     });
+    setCustomFieldValues({});
   };
 
   const formatDate = (dateStr: string) => {
@@ -262,7 +264,7 @@ export default function StockManagement() {
       {/* Stock Items Table */}
       <div className="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden border border-slate-100">
         {loading ? (
-          <TableSkeleton />
+          <TableSkeleton rows={8} columns={10} />
         ) : stockItems.length === 0 ? (
           <div className="text-center py-12">
             <Package className="w-12 h-12 text-slate-300 mx-auto mb-4" />
@@ -321,7 +323,7 @@ export default function StockManagement() {
                           <Eye size={16} />
                         </button>
                         <button
-                          onClick={() => handleEdit(item)}
+                          onClick={() => editItem(item)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         >
                           <Edit size={16} />

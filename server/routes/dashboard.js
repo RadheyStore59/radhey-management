@@ -28,8 +28,6 @@ router.get('/', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     
-    console.log('Dashboard API - Date range:', { startDate, endDate });
-    
     // Get all data first
     const sales = await Sale.find({});
     const investments = await Investment.find({});
@@ -70,13 +68,6 @@ router.get('/', async (req, res) => {
       filteredStockItems = stockItems.filter(item => {
         const itemDate = new Date(item.date_received);
         return itemDate >= start && itemDate <= end;
-      });
-      
-      console.log('Dashboard API - Filtered counts:', { 
-        sales: filteredSales.length, 
-        investments: filteredInvestments.length, 
-        leads: filteredLeads.length, 
-        stock: filteredStockItems.length 
       });
     }
     

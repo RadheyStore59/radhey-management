@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -12,10 +12,15 @@ import {
   Building,
   FileText,
   Package,
-  Archive
+  Archive,
+  Calendar
 } from 'lucide-react';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import logoPng from '../assets/logo.png';
+import CalendarIcon from './Calendar/CalendarIcon';
+import CalendarPanel from './Calendar/CalendarPanel';
+import ReminderPopup from './Calendar/ReminderPopup';
+import useReminderPoller from './Calendar/useReminderPoller';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -26,6 +31,8 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [showCalendar, setShowCalendar] = useState(false);
+  const { dueReminders, dismissReminder, snoozeReminder } = useReminderPoller();
 
   // Handle navigation and auto-close sidebar on mobile
   const handleNavigation = (path: string) => {
@@ -183,6 +190,19 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               </div>
             </button>
 
+            {/* Calendar Icon */}
+            <button
+              onClick={() => setShowCalendar(true)}
+              className="w-full flex justify-center items-center py-3 rounded-xl transition-all duration-200 text-slate-300 hover:bg-slate-700 hover:text-white relative group"
+            >
+              <CalendarIcon className="!p-0" />
+              {/* Tooltip */}
+              <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none">
+                Calendar
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-slate-900 rotate-45"></div>
+              </div>
+            </button>
+
             {/* Logout Icon */}
             <button
               onClick={logout}
@@ -230,6 +250,15 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
               <span className="ml-3 font-medium">Settings</span>
             </button>
 
+            {/* Calendar Button */}
+            <button
+              onClick={() => setShowCalendar(true)}
+              className="w-full flex items-center px-4 py-3 text-left rounded-xl transition-all duration-200 mb-2 text-slate-300 hover:bg-slate-700 hover:text-white"
+            >
+              <Calendar className="w-5 h-5" />
+              <span className="ml-3 font-medium">Calendar</span>
+            </button>
+
             {/* Logout Button */}
             <button
               onClick={logout}
@@ -242,6 +271,22 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
         )}
       </div>
     </div>
+
+    {/* Calendar Panel */}
+    <CalendarPanel 
+      isOpen={showCalendar} 
+      onClose={() => setShowCalendar(false)} 
+    />
+
+    {/* Reminder Popups */}
+    {Array.isArray(dueReminders) && dueReminders.map((reminder, index) => (
+      <ReminderPopup
+        key={reminder._id}
+        reminder={reminder}
+        onDismiss={() => dismissReminder(reminder._id)}
+        onSnooze={() => snoozeReminder(reminder._id)}
+      />
+    ))}
     </>
   );
 }

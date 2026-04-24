@@ -21,6 +21,9 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/radhey-ma
 .then(() => console.log('MongoDB connected successfully'))
 .catch((err) => console.log('MongoDB connection error:', err));
 
+// Import models to ensure they are registered
+require('./models/CalendarEntry');
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
@@ -32,6 +35,8 @@ app.use('/api/courier', require('./routes/courier'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/form-configs', require('./routes/formConfigs'));
 app.use('/api/stock-items', require('./routes/stockItems'));
+app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/email', require('./routes/email'));
 
 // Health route
 app.get('/api/health', (req, res) => {
