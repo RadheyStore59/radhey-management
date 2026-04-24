@@ -17,9 +17,12 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
     product_requirement: '',
     quantity: 1,
     budget: '',
-    budget_per_piece: '',
+    budget_per_piece: 0,
     customization: '',
-    status: 'New Lead',
+    status: 'New',
+    priority: 'Medium',
+    deal_value: 0,
+    expected_close_date: '',
     last_follow_up: '',
     next_action: '',
     notes: ''
@@ -28,12 +31,13 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
   const [error, setError] = useState('');
 
   const statusOptions: Lead['status'][] = [
-    'New Lead',
+    'New',
     'Contacted',
-    'Interested',
+    'Qualified',
+    'Proposal',
     'Negotiation',
-    'Closed Won',
-    'Closed Lost'
+    'Won',
+    'Lost'
   ];
 
   const sourceOptions = [
@@ -57,10 +61,13 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
         lead_source: lead.lead_source,
         product_requirement: lead.product_requirement,
         quantity: lead.quantity,
-        budget: lead.budget,
-        budget_per_piece: lead.budget_per_piece,
+        budget: String(lead.budget ?? ''),
+        budget_per_piece: Number(lead.budget_per_piece || 0),
         customization: lead.customization,
         status: lead.status,
+        priority: lead.priority || 'Medium',
+        deal_value: lead.deal_value || 0,
+        expected_close_date: lead.expected_close_date || '',
         last_follow_up: lead.last_follow_up,
         next_action: lead.next_action,
         notes: lead.notes
@@ -77,7 +84,7 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
     const budget = parseFloat(formData.budget) || 0;
     
     if (quantity > 0 && budget > 0) {
-      const perPiece = (budget / quantity).toFixed(2);
+      const perPiece = Number((budget / quantity).toFixed(2));
       setFormData(prev => ({ ...prev, budget_per_piece: perPiece }));
     }
   }, [formData.quantity, formData.budget]);
@@ -222,6 +229,42 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
                     <option key={status} value={status}>{status}</option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Priority</label>
+                <select
+                  name="priority"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  value={formData.priority}
+                  onChange={handleChange}
+                >
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Deal Value (₹)</label>
+                <input
+                  type="number"
+                  name="deal_value"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  value={formData.deal_value}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Exp. Close Date</label>
+                <input
+                  type="date"
+                  name="expected_close_date"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  value={formData.expected_close_date}
+                  onChange={handleChange}
+                />
               </div>
 
               <div>

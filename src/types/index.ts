@@ -5,7 +5,10 @@ export interface Lead {
   email: string;
   address: string;
   lead_source: string;
-  status: 'New' | 'Contacted' | 'Converted' | 'Lost';
+  status: 'New' | 'Contacted' | 'Qualified' | 'Proposal' | 'Negotiation' | 'Won' | 'Lost';
+  priority: 'Low' | 'Medium' | 'High';
+  deal_value?: number;
+  expected_close_date?: string;
   notes: string;
   date: string;
   created_at: string;
@@ -15,8 +18,10 @@ export interface Lead {
   company_name: string;
   product_requirement: string;
   quantity: number;
-  budget: string;
+  budget?: number;
+  budget_per_piece: number;
   customization: string;
+  pipeline_order?: number;
   custom_fields?: Record<string, any>;
 }
 

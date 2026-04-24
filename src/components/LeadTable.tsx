@@ -14,12 +14,13 @@ export default function LeadTable({ leads, onEdit, onDelete, onStatusUpdate }: L
   const [sourceFilter, setSourceFilter] = useState<string>('all');
 
   const statusOptions: Lead['status'][] = [
-    'New Lead',
+    'New',
     'Contacted',
-    'Interested',
+    'Qualified',
+    'Proposal',
     'Negotiation',
-    'Closed Won',
-    'Closed Lost'
+    'Won',
+    'Lost'
   ];
 
   const sources = useMemo(() => {
@@ -42,12 +43,13 @@ export default function LeadTable({ leads, onEdit, onDelete, onStatusUpdate }: L
 
   const getStatusColor = (status: Lead['status']) => {
     switch (status) {
-      case 'New Lead': return 'bg-blue-100 text-blue-800';
-      case 'Contacted': return 'bg-yellow-100 text-yellow-800';
-      case 'Interested': return 'bg-orange-100 text-orange-800';
-      case 'Negotiation': return 'bg-purple-100 text-purple-800';
-      case 'Closed Won': return 'bg-green-100 text-green-800';
-      case 'Closed Lost': return 'bg-red-100 text-red-800';
+      case 'New': return 'bg-slate-100 text-slate-800';
+      case 'Contacted': return 'bg-blue-100 text-blue-800';
+      case 'Qualified': return 'bg-yellow-100 text-yellow-800';
+      case 'Proposal': return 'bg-purple-100 text-purple-800';
+      case 'Negotiation': return 'bg-orange-100 text-orange-800';
+      case 'Won': return 'bg-green-100 text-green-800';
+      case 'Lost': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -168,6 +170,12 @@ export default function LeadTable({ leads, onEdit, onDelete, onStatusUpdate }: L
                 Budget Per Piece
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Value (₹)
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Priority
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -209,14 +217,26 @@ export default function LeadTable({ leads, onEdit, onDelete, onStatusUpdate }: L
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {lead.budget ? `₹${lead.budget}` : '---'}
                 </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold">
+                  ₹{(lead.deal_value || 0).toLocaleString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    lead.priority === 'High' ? 'bg-red-100 text-red-800' :
+                    lead.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-blue-100 text-blue-800'
+                  }`}>
+                    {lead.priority || 'Medium'}
+                  </span>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(lead.status)}`}
+                    className={`text-xs font-semibold rounded-full px-2 py-1 border-0 focus:ring-2 focus:ring-indigo-500 ${getStatusColor(lead.status)}`}
                     value={lead.status}
                     onChange={(e) => onStatusUpdate(lead.id, e.target.value as Lead['status'])}
                   >
-                    {statusOptions.map(status => (
-                      <option key={status} value={status}>{status}</option>
+                    {statusOptions.map(option => (
+                      <option key={option} value={option}>{option}</option>
                     ))}
                   </select>
                 </td>

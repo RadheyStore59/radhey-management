@@ -19,6 +19,7 @@ import Reports from './components/Reports';
 import ImportExcel from './components/ImportExcel';
 import Settings from './components/Settings';
 import ToastHost from './components/ToastHost';
+import PipelineBoard from './components/Pipeline/PipelineBoard';
 import './App.css';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -62,6 +63,17 @@ function AppRoutes() {
             <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <LeadsManagement />
+            </div>
+          </div>
+        </ProtectedRoute>
+      } />
+      <Route path="/pipeline" element={
+        <ProtectedRoute>
+          <div className="flex h-screen overflow-hidden">
+            <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+              <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
+              <PipelineBoard />
             </div>
           </div>
         </ProtectedRoute>

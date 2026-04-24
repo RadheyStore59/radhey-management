@@ -13,7 +13,7 @@ const DEFAULT_FIELDS = {
     { key: 'mobile_number', label: 'Mobile Number', type: 'text', required: false, enabled: true, order: 2 },
     { key: 'email', label: 'Email', type: 'text', required: false, enabled: true, order: 3 },
     { key: 'lead_source', label: 'Lead Source', type: 'select', required: false, enabled: true, order: 4, options: ['Website', 'Phone', 'Email', 'Referral', 'Social Media', 'Advertisement', 'Other'] },
-    { key: 'status', label: 'Status', type: 'select', required: true, enabled: true, order: 5, options: ['New', 'Contacted', 'Converted', 'Lost'] },
+    { key: 'status', label: 'Status', type: 'select', required: true, enabled: true, order: 5, options: ['New', 'Contacted', 'Qualified', 'Proposal', 'Negotiation', 'Won', 'Lost'] },
     { key: 'date', label: 'Date', type: 'date', required: false, enabled: true, order: 6 },
     { key: 'notes', label: 'Notes', type: 'textarea', required: false, enabled: true, order: 7 },
   ],

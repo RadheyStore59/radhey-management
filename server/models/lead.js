@@ -14,9 +14,13 @@ const leadSchema = new mongoose.Schema({
   budget_per_piece: { type: Number, required: false },
   customization: { type: String, required: false },
   status: { type: String, required: true, default: 'New' },
+  priority: { type: String, required: true, default: 'Medium' },
+  deal_value: { type: Number, required: false, default: 0 },
+  expected_close_date: { type: String, required: false },
   last_follow_up: { type: String, required: false },
   next_action: { type: String, required: false },
   notes: { type: String, required: false },
+  pipeline_order: { type: Number, default: 0 },
   custom_fields: { type: mongoose.Schema.Types.Mixed, default: {} },
   user_id: { type: String, required: true, default: 'user1' }
 }, {

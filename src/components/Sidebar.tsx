@@ -13,7 +13,8 @@ import {
   FileText,
   Package,
   Archive,
-  Calendar
+  Calendar,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '../contexts/LocalStorageAuthContext';
 import logoPng from '../assets/logo.png';
@@ -46,6 +47,7 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { id: 'leads', label: 'Leads', icon: Users, path: '/leads' },
+    { id: 'pipeline', label: 'Sales Pipeline', icon: BarChart3, path: '/pipeline' },
     { id: 'sales', label: 'Sales', icon: TrendingUp, path: '/sales' },
     { id: 'investment', label: 'Investment', icon: Target, path: '/investments' },
     { id: 'stock', label: 'Stock', icon: Archive, path: '/stock' },

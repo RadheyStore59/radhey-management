@@ -23,17 +23,32 @@ const percentChange = (current, previous) => {
   return ((current - previous) / previous) * 100;
 };
 
+const normalizeStatus = (status) => String(status || '').trim().toLowerCase();
+const CLOSED_LEAD_STATUSES = new Set(['won', 'lost', 'converted', 'closed']);
+const isActiveLead = (lead) => {
+  const status = normalizeStatus(lead?.status);
+  if (!status) return true;
+  return !CLOSED_LEAD_STATUSES.has(status);
+};
+
 // GET dashboard stats
 router.get('/', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    
-    // Get all data first
-    const sales = await Sale.find({});
-    const investments = await Investment.find({});
-    const leads = await Lead.find({});
-    const stockItems = await StockItem.find({});
-    
+
+    // If Admin, show everything. If Staff, show only their own data.
+    const query = (req.user && req.user.role === 'Admin') ? {} : { 
+      $or: [
+        { user_id: req.user.id },
+        { user_id: 'user1' } // Allow legacy leads
+      ]
+    };
+
+    const sales = await Sale.find(query);
+    const investments = await Investment.find(query);
+    const leads = await Lead.find(query);
+    const stockItems = await StockItem.find(query);
+
     // Get counts
     const totalLeads = leads.length;
     const totalSales = sales.length;
@@ -49,6 +64,8 @@ router.get('/', async (req, res) => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
       
       filteredSales = sales.filter(sale => {
         const saleDate = new Date(sale.order_date);
@@ -90,8 +107,10 @@ router.get('/', async (req, res) => {
     const lowStockItems = filteredStockItems.filter(item => (item.quantity || 0) <= 5).length;
     
     // Lead status counts
-    const newLeads = filteredLeads.filter(lead => lead.status === 'New').length;
-    const activeLeads = filteredLeads.filter(lead => lead.status === 'Contacted').length;
+    // Keep active leads aligned with Leads Management (global active count for current user scope),
+    // so dashboard and leads module show consistent values even when dashboard date filters are applied.
+    const newLeads = filteredLeads.filter((lead) => normalizeStatus(lead.status) === 'new').length;
+    const activeLeads = leads.filter(isActiveLead).length;
 
     // Dynamic percentage calculation: current 30 days vs previous 30 days
     const today = new Date();
@@ -123,6 +142,15 @@ router.get('/', async (req, res) => {
       return inRange(d, previousStart, previousEnd);
     });
 
+    const investmentsCurrent = investments.filter((inv) => {
+      const d = getDateOnly(inv.date || inv.created_at);
+      return inRange(d, currentStart, today);
+    });
+    const investmentsPrevious = investments.filter((inv) => {
+      const d = getDateOnly(inv.date || inv.created_at);
+      return inRange(d, previousStart, previousEnd);
+    });
+
     const currentRevenue = salesCurrent.reduce((sum, s) => sum + (s.sell_price || 0), 0);
     const previousRevenue = salesPrevious.reduce((sum, s) => sum + (s.sell_price || 0), 0);
     const currentProfit = salesCurrent.reduce((sum, s) => sum + (s.profit || 0), 0);
@@ -131,21 +159,14 @@ router.get('/', async (req, res) => {
     const previousQuantity = salesPrevious.reduce((sum, s) => sum + (s.quantity || 0), 0);
     const currentLeads = leadsCurrent.length;
     const previousLeads = leadsPrevious.length;
+    const currentInvestments = investmentsCurrent.reduce((sum, i) => sum + (i.total || 0), 0);
+    const previousInvestments = investmentsPrevious.reduce((sum, i) => sum + (i.total || 0), 0);
 
-    const currentInvestments = investments
-      .filter((inv) => inRange(getDateOnly(inv.date || inv.created_at), currentStart, today))
-      .reduce((sum, inv) => sum + (inv.total || 0), 0);
-    const previousInvestments = investments
-      .filter((inv) => inRange(getDateOnly(inv.date || inv.created_at), previousStart, previousEnd))
-      .reduce((sum, inv) => sum + (inv.total || 0), 0);
+    const currentActiveLeads = leadsCurrent.filter(isActiveLead).length;
+    const previousActiveLeads = leadsPrevious.filter(isActiveLead).length;
 
-    const currentActiveLeads = leadsCurrent.filter((lead) => lead.status === 'Contacted').length;
-    const previousActiveLeads = leadsPrevious.filter((lead) => lead.status === 'Contacted').length;
-    
     const stats = {
       totalLeads,
-      totalSales,
-      totalQuantity,
       totalRevenue,
       totalProfit,
       totalInventoryItems: totalStockItems,

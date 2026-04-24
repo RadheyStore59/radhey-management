@@ -5,7 +5,6 @@ import {
   Users,
   IndianRupee,
   Target,
-  Activity,
   Package,
   Calendar,
   X,
@@ -20,9 +19,7 @@ import DatePickerField from './DatePickerField';
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
-  console.log('Dashboard - User data:', user);
-  console.log('Dashboard - User name:', user?.name);
+
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState({ startDate: '', endDate: '' });
@@ -32,9 +29,7 @@ export default function Dashboard() {
       const params: any = {};
       if (dateRange.startDate) params.startDate = dateRange.startDate;
       if (dateRange.endDate) params.endDate = dateRange.endDate;
-      console.log('Dashboard - Fetching with params:', params);
       const data = await dashboardAPI.getStats(params);
-      console.log('Dashboard - Received data:', data);
       setStats(data);
       setLoading(false);
     } catch (error) {

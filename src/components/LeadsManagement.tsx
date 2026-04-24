@@ -36,10 +36,13 @@ export default function LeadsManagement() {
     email: '',
     lead_source: '',
     status: 'New' as Lead['status'],
+    priority: 'Medium' as Lead['priority'],
+    deal_value: 0,
+    expected_close_date: new Date().toISOString().split('T')[0],
     notes: '',
     date: new Date().toISOString().split('T')[0],
     quantity: 0,
-    budget: '',
+    budget_per_piece: '',
   });
 
   const leadSources = [
@@ -52,8 +55,10 @@ export default function LeadsManagement() {
   const coreFieldKeys = new Set(['lead_name', 'product', 'mobile_number', 'email', 'lead_source', 'status', 'date', 'notes']);
   const extraDynamicFields = dynamicFields.filter((f) => !coreFieldKeys.has(f.key));
 
-  const statusOptions: Lead['status'][] = ['New', 'Contacted', 'Converted', 'Lost'];
+  const statusOptions: Lead['status'][] = ['New', 'Contacted', 'Qualified', 'Proposal', 'Negotiation', 'Won', 'Lost'];
+  const priorityOptions: Lead['priority'][] = ['Low', 'Medium', 'High'];
   const statusSelectOptions = statusOptions.map((status) => ({ value: status, label: status }));
+  const prioritySelectOptions = priorityOptions.map((priority) => ({ value: priority, label: priority }));
   const leadSourceSelectOptions = leadSourceOptions.map((source) => ({ value: source, label: source }));
 
   useEffect(() => {
@@ -74,6 +79,9 @@ export default function LeadsManagement() {
     address: lead.address || '',
     lead_source: lead.lead_source || '',
     status: lead.status || 'New',
+    priority: lead.priority || 'Medium',
+    deal_value: lead.deal_value || 0,
+    expected_close_date: lead.expected_close_date || '',
     notes: lead.notes || '',
     date: lead.lead_date || lead.date || new Date().toISOString().split('T')[0],
     created_at: lead.created_at || new Date().toISOString(),
@@ -83,8 +91,9 @@ export default function LeadsManagement() {
     company_name: lead.company_name || '',
     product_requirement: lead.product_requirement || '',
     quantity: lead.quantity || 0,
-    budget: lead.budget || '',
-    customization: lead.customization || ''
+    budget_per_piece: lead.budget_per_piece || lead.budget || '',
+    customization: lead.customization || '',
+    pipeline_order: lead.pipeline_order || 0
   });
 
   const mapLeadToApi = (lead: typeof formData) => ({
@@ -95,9 +104,14 @@ export default function LeadsManagement() {
     email: lead.email,
     lead_source: lead.lead_source,
     status: lead.status,
+    priority: lead.priority,
+    deal_value: lead.deal_value,
+    expected_close_date: lead.expected_close_date,
     notes: lead.notes,
-    quantity: lead.quantity,
-    budget: lead.budget,
+    quantity: Number(lead.quantity) || 0,
+    budget_per_piece: Number(lead.budget_per_piece) || 0,
+    customization: (lead as any).customization,
+    pipeline_order: (lead as any).pipeline_order || 0,
     custom_fields: customFieldValues,
   });
 
@@ -191,11 +205,14 @@ export default function LeadsManagement() {
       email: lead.email,
       lead_source: lead.lead_source,
       status: lead.status,
+      priority: lead.priority || 'Medium',
+      deal_value: lead.deal_value || 0,
+      expected_close_date: lead.expected_close_date || new Date().toISOString().split('T')[0],
       notes: lead.notes,
-      date: lead.date,
-      quantity: lead.quantity || 0,
-      budget: lead.budget || '',
-    });
+    date: lead.date,
+    quantity: lead.quantity || 0,
+    budget_per_piece: String(lead.budget_per_piece ?? lead.budget ?? ''),
+  });
     setCustomFieldValues((lead as any).custom_fields || {});
     setShowForm(true);
   };
@@ -251,19 +268,25 @@ export default function LeadsManagement() {
       email: '',
       lead_source: '',
       status: 'New',
+      priority: 'Medium',
+      deal_value: 0,
+      expected_close_date: new Date().toISOString().split('T')[0],
       notes: '',
       date: new Date().toISOString().split('T')[0],
       quantity: 0,
-      budget: '',
+      budget_per_piece: '',
     });
     setCustomFieldValues({});
   };
 
   const getStatusColor = (status: Lead['status']) => {
     switch (status) {
-      case 'New': return 'bg-blue-100 text-blue-800';
-      case 'Contacted': return 'bg-yellow-100 text-yellow-800';
-      case 'Converted': return 'bg-green-100 text-green-800';
+      case 'New': return 'bg-slate-100 text-slate-800';
+      case 'Contacted': return 'bg-blue-100 text-blue-800';
+      case 'Qualified': return 'bg-yellow-100 text-yellow-800';
+      case 'Proposal': return 'bg-purple-100 text-purple-800';
+      case 'Negotiation': return 'bg-orange-100 text-orange-800';
+      case 'Won': return 'bg-green-100 text-green-800';
       case 'Lost': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -314,7 +337,7 @@ export default function LeadsManagement() {
           <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-end relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-emerald-400 to-emerald-600/20 rounded-full -mr-6 -mt-6 sm:-mr-8 sm:-mt-8 transition-transform group-hover:scale-110"></div>
             <span className="text-[9px] sm:text-[10px] font-bold text-emerald-500 uppercase tracking-widest relative z-10">Active Leads</span>
-            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">{filteredLeads.filter(lead => lead.status === 'New' || lead.status === 'Contacted').length}</span>
+            <span className="text-xl sm:text-2xl lg:text-3xl font-black text-emerald-600 relative z-10 break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-[120px] sm:max-w-[150px] md:max-w-[200px] lg:max-w-[250px]">{filteredLeads.filter(lead => ['New', 'Contacted', 'Qualified', 'Proposal', 'Negotiation'].includes(lead.status)).length}</span>
           </div>
         </div>
       </div>
@@ -388,7 +411,7 @@ export default function LeadsManagement() {
                       {lead.product || '---'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-                      {lead.budget ? `₹${lead.budget}` : '---'}
+                      {lead.budget_per_piece ? `₹${lead.budget_per_piece}` : '---'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-slate-900 flex items-center gap-1">
@@ -422,8 +445,11 @@ export default function LeadsManagement() {
                         <div className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
                           {lead.status === 'New' && <AlertCircle className="w-3 h-3" />}
                           {lead.status === 'Contacted' && <FileText className="w-3 h-3" />}
-                          {lead.status === 'Converted' && <CheckCircle className="w-3 h-3" />}
-                          {lead.status === 'Lost' && <AlertCircle className="w-3 h-3" />}
+                          {lead.status === 'Qualified' && <Tag className="w-3 h-3" />}
+                          {lead.status === 'Proposal' && <FileText className="w-3 h-3" />}
+                          {lead.status === 'Negotiation' && <TrendingUp className="w-3 h-3" />}
+                          {lead.status === 'Won' && <CheckCircle className="w-3 h-3" />}
+                          {lead.status === 'Lost' && <AlertTriangle className="w-3 h-3" />}
                         </div>
                         <ChevronDown className="w-3 h-3 absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
                       </div>
@@ -636,8 +662,43 @@ export default function LeadsManagement() {
                   <input
                     type="text"
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={formData.budget}
-                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                    value={formData.budget_per_piece}
+                    onChange={(e) => setFormData({ ...formData, budget_per_piece: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Priority
+                  </label>
+                  <SelectField
+                    value={formData.priority}
+                    options={prioritySelectOptions}
+                    onChange={(value) => setFormData({ ...formData, priority: value as Lead['priority'] })}
+                    placeholder="Priority"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Deal Value (₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={formData.deal_value}
+                    onChange={(e) => setFormData({ ...formData, deal_value: parseFloat(e.target.value) || 0 })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Expected Close Date
+                  </label>
+                  <DatePickerField
+                    value={formData.expected_close_date || ''}
+                    onChange={(value) => setFormData({ ...formData, expected_close_date: value })}
                   />
                 </div>
               </div>

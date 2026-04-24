@@ -8,12 +8,12 @@ interface StatsCardsProps {
 export default function StatsCards({ leads }: StatsCardsProps) {
   const stats = {
     total: leads.length,
-    newLead: leads.filter(l => l.status === 'New Lead').length,
+    new: leads.filter(l => l.status === 'New').length,
     contacted: leads.filter(l => l.status === 'Contacted').length,
-    interested: leads.filter(l => l.status === 'Interested').length,
+    qualified: leads.filter(l => l.status === 'Qualified').length,
     negotiation: leads.filter(l => l.status === 'Negotiation').length,
-    closedWon: leads.filter(l => l.status === 'Closed Won').length,
-    closedLost: leads.filter(l => l.status === 'Closed Lost').length,
+    won: leads.filter(l => l.status === 'Won').length,
+    lost: leads.filter(l => l.status === 'Lost').length,
     todayFollowUps: leads.filter(l => {
       if (!l.last_follow_up) return false;
       const followUpDate = new Date(l.last_follow_up);
@@ -24,13 +24,12 @@ export default function StatsCards({ leads }: StatsCardsProps) {
   };
 
   const cards = [
-    { title: 'Total Leads', value: stats.total, color: 'bg-blue-500' },
-    { title: 'New Leads', value: stats.newLead, color: 'bg-blue-400' },
-    { title: 'Contacted', value: stats.contacted, color: 'bg-yellow-500' },
-    { title: 'Interested', value: stats.interested, color: 'bg-orange-500' },
-    { title: 'Negotiation', value: stats.negotiation, color: 'bg-purple-500' },
-    { title: 'Closed Won', value: stats.closedWon, color: 'bg-green-500' },
-    { title: 'Closed Lost', value: stats.closedLost, color: 'bg-red-500' },
+    { title: 'Total Leads', value: stats.total, color: 'bg-slate-500' },
+    { title: 'New Leads', value: stats.new, color: 'bg-blue-500' },
+    { title: 'Qualified', value: stats.qualified, color: 'bg-yellow-500' },
+    { title: 'Negotiation', value: stats.negotiation, color: 'bg-orange-500' },
+    { title: 'Won', value: stats.won, color: 'bg-green-500' },
+    { title: 'Lost', value: stats.lost, color: 'bg-red-400' },
     { title: 'Follow-ups Due', value: stats.todayFollowUps, color: 'bg-red-600' },
   ];
 

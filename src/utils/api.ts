@@ -124,7 +124,7 @@ export const leadsAPI = {
       body: JSON.stringify(lead),
     }),
   createBulk: (leads: any[]) => 
-    apiRequest('/leads/bulk', {
+    apiRequest('/leads/batch', {
       method: 'POST',
       body: JSON.stringify({ leads }),
     }),
@@ -132,6 +132,11 @@ export const leadsAPI = {
     apiRequest(`/leads/${id}`, {
       method: 'PUT',
       body: JSON.stringify(lead),
+    }),
+  updateBulk: (updates: { id: string, data: any }[]) => 
+    apiRequest('/leads/batch', {
+      method: 'PUT',
+      body: JSON.stringify({ updates }),
     }),
   delete: (id: string) => 
     apiRequest(`/leads/${id}`, {

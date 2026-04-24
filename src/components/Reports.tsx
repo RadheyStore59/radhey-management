@@ -55,7 +55,7 @@ export default function Reports() {
     const totalSales = salesData.length;
     const totalLeads = leadsData.length;
     const lowStockItems = inventoryData.filter(item => item.stock_quantity <= item.minimum_stock_level).length;
-    const convertedLeads = leadsData.filter(lead => lead.status === 'Converted').length;
+    const convertedLeads = leadsData.filter(lead => lead.status === 'Won').length;
 
     return {
       totalRevenue,
