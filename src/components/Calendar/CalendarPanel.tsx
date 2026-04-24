@@ -35,6 +35,23 @@ const CalendarPanel = ({ isOpen, onClose }: CalendarPanelProps) => {
     }
   }, [currentDate, isOpen]);
 
+  // Listen for entry updates from ReminderPopup
+  useEffect(() => {
+    const handleEntryUpdated = (event: CustomEvent) => {
+      // Refresh entries for the selected date if calendar is open
+      if (selectedDate) {
+        fetchEntriesForDate(selectedDate);
+      }
+      // Also refresh month entries to update calendar dots
+      fetchMonthEntries();
+    };
+
+    window.addEventListener('calendar-entry-updated', handleEntryUpdated as EventListener);
+    return () => {
+      window.removeEventListener('calendar-entry-updated', handleEntryUpdated as EventListener);
+    };
+  }, [selectedDate]);
+
   const fetchMonthEntries = async () => {
     setLoading(true);
     try {

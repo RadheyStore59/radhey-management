@@ -278,15 +278,15 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
       onClose={() => setShowCalendar(false)} 
     />
 
-    {/* Reminder Popups */}
-    {Array.isArray(dueReminders) && dueReminders.map((reminder, index) => (
+    {/* Reminder Popups - Show only the first one at a time */}
+    {Array.isArray(dueReminders) && dueReminders.length > 0 && (
       <ReminderPopup
-        key={reminder._id}
-        reminder={reminder}
-        onDismiss={() => dismissReminder(reminder._id)}
-        onSnooze={() => snoozeReminder(reminder._id)}
+        key={dueReminders[0]._id}
+        reminder={dueReminders[0]}
+        onDismiss={() => dismissReminder(dueReminders[0]._id)}
+        onSnooze={() => snoozeReminder(dueReminders[0]._id)}
       />
-    ))}
+    )}
     </>
   );
 }

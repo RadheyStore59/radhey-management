@@ -7,6 +7,7 @@ export interface Lead {
   product_requirement: string;
   quantity: number;
   budget: string;
+  budget_per_piece?: string;
   customization: string;
   status: 'New Lead' | 'Contacted' | 'Interested' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
   last_follow_up: string;
@@ -23,6 +24,7 @@ export interface LeadFormData {
   product_requirement: string;
   quantity: number;
   budget: string;
+  budget_per_piece?: string;
   customization: string;
   status: Lead['status'];
   last_follow_up: string;

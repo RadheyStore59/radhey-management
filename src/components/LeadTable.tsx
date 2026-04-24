@@ -165,7 +165,7 @@ export default function LeadTable({ leads, onEdit, onDelete, onStatusUpdate }: L
                 Quantity
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Budget
+                Budget Per Piece
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -207,7 +207,7 @@ export default function LeadTable({ leads, onEdit, onDelete, onStatusUpdate }: L
                   {lead.quantity}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {lead.budget}
+                  {lead.budget ? `₹${lead.budget}` : '---'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <select

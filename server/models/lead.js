@@ -11,6 +11,7 @@ const leadSchema = new mongoose.Schema({
   product_requirement: { type: String, required: false },
   quantity: { type: Number, required: false },
   budget: { type: Number, required: false },
+  budget_per_piece: { type: Number, required: false },
   customization: { type: String, required: false },
   status: { type: String, required: true, default: 'New' },
   last_follow_up: { type: String, required: false },

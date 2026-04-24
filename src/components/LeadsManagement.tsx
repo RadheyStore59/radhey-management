@@ -38,6 +38,8 @@ export default function LeadsManagement() {
     status: 'New' as Lead['status'],
     notes: '',
     date: new Date().toISOString().split('T')[0],
+    quantity: 0,
+    budget: '',
   });
 
   const leadSources = [
@@ -94,6 +96,8 @@ export default function LeadsManagement() {
     lead_source: lead.lead_source,
     status: lead.status,
     notes: lead.notes,
+    quantity: lead.quantity,
+    budget: lead.budget,
     custom_fields: customFieldValues,
   });
 
@@ -189,6 +193,8 @@ export default function LeadsManagement() {
       status: lead.status,
       notes: lead.notes,
       date: lead.date,
+      quantity: lead.quantity || 0,
+      budget: lead.budget || '',
     });
     setCustomFieldValues((lead as any).custom_fields || {});
     setShowForm(true);
@@ -247,6 +253,8 @@ export default function LeadsManagement() {
       status: 'New',
       notes: '',
       date: new Date().toISOString().split('T')[0],
+      quantity: 0,
+      budget: '',
     });
     setCustomFieldValues({});
   };
@@ -362,6 +370,7 @@ export default function LeadsManagement() {
                 <tr>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Customer Name</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Product</th>
+                  <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Budget Per Piece</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Contact</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Source</th>
                   <th className="px-6 py-4 text-left text-[11px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
@@ -377,6 +386,9 @@ export default function LeadsManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
                       {lead.product || '---'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+                      {lead.budget ? `₹${lead.budget}` : '---'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-slate-900 flex items-center gap-1">
@@ -601,6 +613,31 @@ export default function LeadsManagement() {
                   <DatePickerField
                     value={formData.date}
                     onChange={(value) => setFormData({ ...formData, date: value })}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Budget Per Piece (₹)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={formData.budget}
+                    onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
                   />
                 </div>
               </div>

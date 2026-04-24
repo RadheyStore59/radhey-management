@@ -17,6 +17,7 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
     product_requirement: '',
     quantity: 1,
     budget: '',
+    budget_per_piece: '',
     customization: '',
     status: 'New Lead',
     last_follow_up: '',
@@ -57,6 +58,7 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
         product_requirement: lead.product_requirement,
         quantity: lead.quantity,
         budget: lead.budget,
+        budget_per_piece: lead.budget_per_piece,
         customization: lead.customization,
         status: lead.status,
         last_follow_up: lead.last_follow_up,
@@ -68,6 +70,17 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
       setFormData(prev => ({ ...prev, lead_date: today }));
     }
   }, [lead]);
+
+  // Auto-calculate budget per piece when quantity or total budget changes
+  useEffect(() => {
+    const quantity = parseFloat(String(formData.quantity)) || 0;
+    const budget = parseFloat(formData.budget) || 0;
+    
+    if (quantity > 0 && budget > 0) {
+      const perPiece = (budget / quantity).toFixed(2);
+      setFormData(prev => ({ ...prev, budget_per_piece: perPiece }));
+    }
+  }, [formData.quantity, formData.budget]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -187,7 +200,7 @@ export default function LeadForm({ lead, onClose, onSave }: LeadFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Budget</label>
+                <label className="block text-sm font-medium text-gray-700">Budget Per Piece (₹)</label>
                 <input
                   type="text"
                   name="budget"

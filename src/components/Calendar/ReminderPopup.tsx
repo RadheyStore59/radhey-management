@@ -10,6 +10,10 @@ const ReminderPopup = ({ reminder, onDismiss, onSnooze }: ReminderPopupProps) =>
     setLoading(true);
     try {
       await calendarAPI.updateEntry(reminder._id, { status: 'done' });
+      // Notify other components that an entry was updated
+      window.dispatchEvent(new CustomEvent('calendar-entry-updated', { 
+        detail: { entryId: reminder._id, action: 'done' }
+      }));
       onDismiss();
     } catch (error) {
       // Error handling without console.log
@@ -27,6 +31,10 @@ const ReminderPopup = ({ reminder, onDismiss, onSnooze }: ReminderPopupProps) =>
         snoozed_until: snoozeTime.toISOString(),
         status: 'snoozed'
       });
+      // Notify other components that an entry was updated
+      window.dispatchEvent(new CustomEvent('calendar-entry-updated', { 
+        detail: { entryId: reminder._id, action: 'snoozed' }
+      }));
       onSnooze();
     } catch (error) {
       // Error handling without console.log
