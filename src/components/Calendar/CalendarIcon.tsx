@@ -6,9 +6,11 @@ import { CalendarEntry } from '../../types/calendar';
 interface CalendarIconProps {
   onClick?: () => void;
   className?: string;
+  /** Lucide size classes, e.g. w-6 h-6 for narrow sidebar rail */
+  iconClassName?: string;
 }
 
-const CalendarIcon = ({ onClick, className = '' }: CalendarIconProps) => {
+const CalendarIcon = ({ onClick, className = '', iconClassName = 'w-5 h-5 text-slate-300' }: CalendarIconProps) => {
   const [hasRemindersToday, setHasRemindersToday] = useState(false);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const CalendarIcon = ({ onClick, className = '' }: CalendarIconProps) => {
 
   const iconContent = (
     <>
-      <Calendar className="w-5 h-5 text-slate-300" />
+      <Calendar className={iconClassName} strokeWidth={2} />
       
       {/* Red badge indicator for today's reminders */}
       {hasRemindersToday && (
@@ -52,7 +54,7 @@ const CalendarIcon = ({ onClick, className = '' }: CalendarIconProps) => {
     return (
       <button
         onClick={onClick}
-        className={`relative p-2 rounded-lg transition-all hover:bg-slate-700 hover:text-white hover:scale-105 ${className}`}
+        className={`relative inline-flex items-center justify-center p-2 rounded-lg transition-all hover:bg-slate-700 hover:text-white hover:scale-105 ${className}`}
       >
         {iconContent}
       </button>
@@ -60,7 +62,7 @@ const CalendarIcon = ({ onClick, className = '' }: CalendarIconProps) => {
   }
 
   return (
-    <span className={`relative inline-flex ${className}`}>
+    <span className={`relative inline-flex items-center justify-center ${className}`}>
       {iconContent}
     </span>
   );

@@ -43,6 +43,262 @@ const formatDateForDisplay = (dateStr: any) => {
   }
 };
 
+/** ---- Investment Excel import: multiple header layouts + Excel dates / currency ---- */
+function normalizeInvestmentHeader(h: string): string {
+  return String(h ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/\u00a0/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/[_.]+/g, ' ')
+    .trim();
+}
+
+const INVEST_VENDOR_ALIASES = [
+  'vendor name',
+  'vendor',
+  'party name',
+  'party',
+  'supplier name',
+  'supplier',
+  'payee',
+  'paid to',
+  'beneficiary',
+  'creditor',
+  'vendor party',
+];
+
+const INVEST_PARTICULAR_ALIASES = [
+  'particular',
+  'particulars',
+  'particular name',
+  'particular of payment',
+  'payment particulars',
+  'description',
+  'narration',
+  'details',
+  'remarks',
+  'purpose',
+  'memo',
+  'bill details',
+  'reference',
+  'transaction details',
+];
+
+const INVEST_DATE_ALIASES = [
+  'date',
+  'transaction date',
+  'voucher date',
+  'inv date',
+  'invoice date',
+  'dt',
+  'dated',
+  'value date',
+];
+
+const INVEST_SR_ALIASES = [
+  'sr. no',
+  'sr no',
+  'sr.no',
+  's.no',
+  's no',
+  'serial no',
+  'serial number',
+  'sl no',
+  'sl. no',
+  'no.',
+];
+
+const INVEST_UNIT_ALIASES = ['unit', 'units', 'qty', 'quantity'];
+
+const INVEST_PAY_THROUGH_ALIASES = [
+  'payment through',
+  'payment mode',
+  'mode',
+  'pay mode',
+  'instrument',
+  'payment type',
+];
+
+const INVEST_PAY_BY_ALIASES = ['payment by', 'paid by', 'booked by', 'employee', 'by', 'entered by'];
+
+function findInvestmentColumnIndex(headers: string[], aliases: string[]): number {
+  const norms = headers.map(normalizeInvestmentHeader);
+  for (const alias of aliases) {
+    const a = normalizeInvestmentHeader(alias);
+    if (!a) continue;
+    const idx = norms.findIndex((n) => n === a);
+    if (idx !== -1) return idx;
+  }
+  for (const alias of aliases) {
+    const a = normalizeInvestmentHeader(alias);
+    if (a.length < 3) continue;
+    const idx = norms.findIndex((n) => n.startsWith(a + ' ') || n.startsWith(a + '('));
+    if (idx !== -1) return idx;
+  }
+  for (const alias of aliases) {
+    const a = normalizeInvestmentHeader(alias);
+    if (a.length < 4) continue;
+    const idx = norms.findIndex((n) => n.includes(a));
+    if (idx !== -1) return idx;
+  }
+  for (const alias of aliases) {
+    const a = normalizeInvestmentHeader(alias);
+    if (a.length > 3) continue;
+    const idx = norms.findIndex((n) => n === a);
+    if (idx !== -1) return idx;
+  }
+  return -1;
+}
+
+function findInvestmentTotalColumnIndex(headers: string[]): number {
+  const norms = headers.map(normalizeInvestmentHeader);
+  const blocked = (n: string) =>
+    n.includes('subtotal') ||
+    n.includes('sub total') ||
+    n.includes('grand total') ||
+    n.includes('opening') ||
+    n.includes('closing');
+
+  const tryExact = (want: string) => {
+    const w = normalizeInvestmentHeader(want);
+    const i = norms.findIndex((n) => !blocked(n) && n === w);
+    return i;
+  };
+
+  for (const key of ['total', 'amount', 'net amount', 'debit', 'credit', 'total amount', 'net']) {
+    const i = tryExact(key);
+    if (i !== -1) return i;
+  }
+  const fuzzy = findInvestmentColumnIndex(headers, [
+    'value',
+    'rs',
+    'rs.',
+    'inr',
+    'amt',
+    'amount inr',
+    'payment amount',
+  ]);
+  if (fuzzy !== -1 && !blocked(norms[fuzzy])) return fuzzy;
+  return -1;
+}
+
+function scoreInvestmentHeaderRow(headers: string[]): number {
+  const v = findInvestmentColumnIndex(headers, INVEST_VENDOR_ALIASES);
+  const p = findInvestmentColumnIndex(headers, INVEST_PARTICULAR_ALIASES);
+  const t = findInvestmentTotalColumnIndex(headers);
+  let score = 0;
+  if (v !== -1) score += 3;
+  if (p !== -1) score += 3;
+  if (t !== -1) score += 2;
+  return score;
+}
+
+function pickInvestmentHeaderRowIndex(rawData: any[][]): number {
+  let bestIdx = -1;
+  let bestScore = -1;
+  const maxScan = Math.min(rawData.length, 80);
+  for (let i = 0; i < maxScan; i++) {
+    const headers = rawData[i].map((c) => String(c).trim());
+    if (headers.filter(Boolean).length < 2) continue;
+    const s = scoreInvestmentHeaderRow(headers);
+    if (s > bestScore) {
+      bestScore = s;
+      bestIdx = i;
+    }
+  }
+  if (bestScore >= 5) return bestIdx;
+
+  // Ledger-style: description / narration + amount (no "vendor" in headers)
+  for (let i = 0; i < maxScan; i++) {
+    const rowText = rawData[i].map(String).join(' ').toLowerCase();
+    const hasParticularish =
+      /\b(particular|description|narration|remarks|details|memo)\b/.test(rowText) ||
+      rowText.includes('particular');
+    const hasAmountish =
+      /\b(amount|total|debit|credit|rs\.?|inr|₹)\b/.test(rowText) || rowText.includes('amount');
+    if (hasParticularish && hasAmountish) {
+      const headers = rawData[i].map((c) => String(c).trim());
+      const p = findInvestmentColumnIndex(headers, INVEST_PARTICULAR_ALIASES);
+      const t = findInvestmentTotalColumnIndex(headers);
+      if (p !== -1 && t !== -1) return i;
+    }
+  }
+
+  return bestIdx;
+}
+
+function investmentCellAt(row: any[], idx: number): unknown {
+  if (idx < 0 || idx >= row.length) return '';
+  const v = row[idx];
+  return v === null || v === undefined ? '' : v;
+}
+
+function parseInvestmentMoney(raw: unknown): number {
+  if (raw === '' || raw === null || raw === undefined) return 0;
+  if (typeof raw === 'number' && !Number.isNaN(raw)) return raw;
+  let s = String(raw).trim();
+  s = s.replace(/[₹\s\u00a0,]/g, '');
+  s = s.replace(/[()]/g, '');
+  s = s.replace(/[^0-9.-]/g, '');
+  const n = parseFloat(s);
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function parseInvestmentInteger(raw: unknown, fallback: number): number {
+  const n = parseInt(String(raw).replace(/[^\d-]/g, ''), 10);
+  return Number.isNaN(n) || n < 1 ? fallback : n;
+}
+
+/** Excel serial or display string -> YYYY-MM-DD */
+function parseInvestmentSheetDate(raw: unknown): string {
+  if (raw === '' || raw === null || raw === undefined) {
+    return new Date().toISOString().split('T')[0];
+  }
+  if (typeof raw === 'number' && !Number.isNaN(raw)) {
+    if (raw > 20000 && raw < 120000) {
+      const ms = Math.round((raw - 25569) * 86400 * 1000);
+      const d = new Date(ms);
+      if (!Number.isNaN(d.getTime())) {
+        return d.toISOString().split('T')[0];
+      }
+    }
+  }
+  const str = String(raw).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    return str.slice(0, 10);
+  }
+  if (str.includes('/')) {
+    const parts = str.split(/[/\sT]/).filter(Boolean);
+    if (parts.length >= 3) {
+      let p0 = parseInt(parts[0], 10);
+      let p1 = parseInt(parts[1], 10);
+      let y = parseInt(parts[2], 10);
+      if (y < 100) y += 2000;
+      let day: number;
+      let month: number;
+      if (p0 > 12) {
+        day = p0;
+        month = p1;
+      } else if (p1 > 12) {
+        month = p0;
+        day = p1;
+      } else {
+        day = p0;
+        month = p1;
+      }
+      if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return `${y}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+    }
+  }
+  const parsed = new Date(str);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toISOString().split('T')[0];
+  }
+  return new Date().toISOString().split('T')[0];
+}
+
 export default function InvestmentManagement() {
   const { user } = useAuth();
   const canDelete = user?.role === 'Admin';
@@ -266,6 +522,7 @@ export default function InvestmentManagement() {
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    const inputEl = e.target as HTMLInputElement;
     if (!file) return;
 
     const reader = new FileReader();
@@ -275,92 +532,80 @@ export default function InvestmentManagement() {
         const workbook = XLSX.read(data, { type: 'array' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
-        // Read as array of arrays to safely find the header row
-        const rawData: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+        const rawData: any[][] = XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          raw: false,
+          defval: '',
+        });
 
         if (rawData.length === 0) {
           throw new Error('File is completely empty.');
         }
 
-        // Find the actual header row by looking for key terms
-        let headerRowIndex = -1;
-        for (let i = 0; i < rawData.length; i++) {
-          const rowText = rawData[i].map(String).join(' ').toLowerCase();
-          if (rowText.includes('vendor') || rowText.includes('particular') || rowText.includes('total')) {
-            headerRowIndex = i;
-            break;
-          }
-        }
-
+        const headerRowIndex = pickInvestmentHeaderRowIndex(rawData);
         if (headerRowIndex === -1) {
-          throw new Error('Could not identify a valid header row. Ensure your sheet has headers like "Vendor Name", "Particular" or "Total".');
+          throw new Error(
+            'Could not find a header row. Supported layouts: (1) App export — Vendor Name, Particular, Total, Date, etc. ' +
+              '(2) Bank / ledger — Description or Narration with Amount / Debit / Credit.'
+          );
         }
 
-        const headers = rawData[headerRowIndex].map(String).map(h => h.trim());
-        const dataRows = rawData.slice(headerRowIndex + 1);
+        const headers = rawData[headerRowIndex].map((c) => String(c).trim());
+        const vendorIdx = findInvestmentColumnIndex(headers, INVEST_VENDOR_ALIASES);
+        const particularIdx = findInvestmentColumnIndex(headers, INVEST_PARTICULAR_ALIASES);
+        const totalIdx = findInvestmentTotalColumnIndex(headers);
+        const dateIdx = findInvestmentColumnIndex(headers, INVEST_DATE_ALIASES);
+        const srIdx = findInvestmentColumnIndex(headers, INVEST_SR_ALIASES);
+        const unitIdx = findInvestmentColumnIndex(headers, INVEST_UNIT_ALIASES);
+        const payThroughIdx = findInvestmentColumnIndex(headers, INVEST_PAY_THROUGH_ALIASES);
+        const payByIdx = findInvestmentColumnIndex(headers, INVEST_PAY_BY_ALIASES);
 
-        // Map data rows using detected headers
-        const rowErrors: string[] = [];
-        const mappedData = dataRows
-          .filter(rowArray => rowArray.some(cell => cell !== '' && cell !== null && cell !== undefined)) // Skip empty rows
-          .map((rowArray, rowIndex) => {
-            const row: Record<string, any> = {};
-            headers.forEach((header, index) => {
-              if (header) {
-                // Normalize the header slightly for lookup, but store as original
-                row[header] = rowArray[index];
-                row[header.toLowerCase()] = rowArray[index];
-              }
-            });
+        if (particularIdx === -1 && vendorIdx === -1) {
+          throw new Error(
+            'No Particular / Description / Narration column (and no Vendor column) was found. Check spelling in the header row.'
+          );
+        }
+        if (totalIdx === -1) {
+          throw new Error(
+            'No Total / Amount column was found. Expected headers like "Total", "Amount", "Debit", or "Credit".'
+          );
+        }
 
-            // Helper to find a value across possible key matches
-            const findVal = (...keys: string[]) => {
-              for (const k of keys) {
-                // Check original case and lower case exact matches
-                if (row[k] !== undefined && row[k] !== '') return row[k];
-                if (row[k.toLowerCase()] !== undefined && row[k.toLowerCase()] !== '') return row[k.toLowerCase()];
-              }
-              return '';
-            };
+        const mappedData = rawData
+          .slice(headerRowIndex + 1)
+          .filter((rowArray) => rowArray.some((cell) => cell !== '' && cell !== null && cell !== undefined))
+          .map((rowArray) => {
+            let vendor_name = String(investmentCellAt(rowArray, vendorIdx)).trim();
+            let particular = String(investmentCellAt(rowArray, particularIdx)).trim();
 
-            const excelRowNumber = headerRowIndex + 2 + rowIndex; // +2 because header row + 1-based Excel row
-
-            const vendor_name = String(
-              findVal('Vendor Name', 'vendor_name', 'Vendor', 'vendor')
-            ).trim();
-            const particular = String(
-              findVal(
-                'Particular',
-                'Particulars',
-                'Particular Name',
-                'particular',
-                'particulars',
-                'particular_name'
-              )
-            ).trim();
-
-            if (!vendor_name || !particular) {
-              const missing: string[] = [];
-              if (!vendor_name) missing.push('Vendor Name');
-              if (!particular) missing.push('Particular');
-              rowErrors.push(
-                `Row ${excelRowNumber}: missing ${missing.join(' and ')}`
-              );
+            // Format A: both vendor + particular. Format B: ledger — description + amount only
+            if (!vendor_name && particular) {
+              vendor_name = 'Miscellaneous';
+            }
+            if (vendor_name && !particular) {
+              particular = vendor_name;
+            }
+            if (!vendor_name && !particular) {
               return null;
             }
 
+            const total = parseInvestmentMoney(investmentCellAt(rowArray, totalIdx));
+
+            const dateRaw = dateIdx >= 0 ? investmentCellAt(rowArray, dateIdx) : '';
+            const date = parseInvestmentSheetDate(dateRaw);
+
             return {
-              sr_no: String(findVal('SR. NO', 'sr_no', 'Sr No')),
-              date: findVal('DATE', 'date', 'Date') || new Date().toISOString().split('T')[0],
+              sr_no: String(investmentCellAt(rowArray, srIdx) ?? '').trim(),
+              date,
               vendor_name,
               particular,
-              unit: parseInt(findVal('Unit', 'unit')) || 1,
-              total: parseFloat(findVal('Total', 'total')) || 0,
-              payment_through: String(findVal('Payment Through', 'payment_through')),
-              payment_by: String(findVal('Payment By', 'payment_by')),
+              unit: parseInvestmentInteger(investmentCellAt(rowArray, unitIdx), 1),
+              total,
+              payment_through: String(investmentCellAt(rowArray, payThroughIdx) ?? '').trim(),
+              payment_by: String(investmentCellAt(rowArray, payByIdx) ?? '').trim(),
               id: crypto.randomUUID(),
               created_at: new Date().toISOString(),
-              user_id: '' // Satisfies generic requirement
+              user_id: '',
             };
           });
 
@@ -370,24 +615,16 @@ export default function InvestmentManagement() {
           throw new Error('No valid data rows found after the header.');
         }
 
-        // Insert data using bulk insert for better speed
         await investmentsAPI.createBulk(validMappedData as Investment[]);
 
-        const debugInfo = `
-Total Raw Rows Found: ${rawData.length}
-Header Row Index Used: ${headerRowIndex}
-Headers Detected: ${JSON.stringify(headers).substring(0, 100)}...
-First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
-        `;
-        const skippedText = rowErrors.length
-          ? `\n\nSkipped ${rowErrors.length} invalid row(s):\n${rowErrors.slice(0, 5).join('\n')}${rowErrors.length > 5 ? '\n...' : ''}`
-          : '';
-        showToast(`Successfully imported ${validMappedData.length} investments from Excel.${skippedText}`, 'success');
+        showToast(`Successfully imported ${validMappedData.length} investments from Excel.`, 'success');
         setShowImportModal(false);
         fetchInvestments();
       } catch (error: any) {
         console.error('Error importing file:', error);
         showToast(`Error importing file: ${error.message || 'Please check the format.'}`, 'error');
+      } finally {
+        inputEl.value = '';
       }
     };
     reader.readAsArrayBuffer(file);
@@ -883,8 +1120,9 @@ First Mapped Row: ${JSON.stringify(validMappedData[0]).substring(0, 150)}...
                 </div>
               </label>
 
-              <p className="mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Required columns: Vendor Name, Particular
+              <p className="mt-6 text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-sm">
+                Two layouts: (1) Export-style — Vendor Name, Particular, Total, Date. (2) Ledger / bank — Description or
+                Narration + Amount (missing vendor is stored as Miscellaneous). Commas and Excel dates are supported.
               </p>
             </div>
           </div>

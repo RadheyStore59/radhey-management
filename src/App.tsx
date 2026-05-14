@@ -35,7 +35,7 @@ function AppRoutes() {
   // Show loading spinner while checking authentication
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-[100dvh]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -47,9 +47,9 @@ function AppRoutes() {
       <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <Dashboard />
             </div>
@@ -58,9 +58,9 @@ function AppRoutes() {
       } />
       <Route path="/leads" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <LeadsManagement />
             </div>
@@ -69,9 +69,9 @@ function AppRoutes() {
       } />
       <Route path="/pipeline" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <PipelineBoard />
             </div>
@@ -80,9 +80,9 @@ function AppRoutes() {
       } />
       <Route path="/sales" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <SalesManagement />
             </div>
@@ -91,9 +91,9 @@ function AppRoutes() {
       } />
       <Route path="/stock" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <StockManagement />
             </div>
@@ -102,9 +102,9 @@ function AppRoutes() {
       } />
       <Route path="/categories" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <CategoryManagement />
             </div>
@@ -113,9 +113,9 @@ function AppRoutes() {
       } />
       <Route path="/brands" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <BrandManagement />
             </div>
@@ -124,9 +124,9 @@ function AppRoutes() {
       } />
       <Route path="/dealers" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <DealerManagement />
             </div>
@@ -135,9 +135,9 @@ function AppRoutes() {
       } />
       <Route path="/investments" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <InvestmentManagement />
             </div>
@@ -147,9 +147,9 @@ function AppRoutes() {
       <Route path="/investment" element={<Navigate to="/investments" />} />
       <Route path="/inventory" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <InventoryManagement />
             </div>
@@ -158,9 +158,9 @@ function AppRoutes() {
       } />
       <Route path="/gst" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <GstManagement />
             </div>
@@ -169,9 +169,9 @@ function AppRoutes() {
       } />
       <Route path="/courier" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <CourierManagement />
             </div>
@@ -180,9 +180,9 @@ function AppRoutes() {
       } />
       <Route path="/reports" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <Reports />
             </div>
@@ -191,9 +191,9 @@ function AppRoutes() {
       } />
       <Route path="/import" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <ImportExcel />
             </div>
@@ -202,9 +202,9 @@ function AppRoutes() {
       } />
       <Route path="/settings" element={
         <ProtectedRoute>
-          <div className="flex h-screen overflow-hidden">
+          <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 min-w-0">
             <Sidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-            <div className={`flex-1 overflow-y-auto bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
+            <div className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden bg-gray-50 transition-all duration-300 ${!sidebarCollapsed ? 'lg:ml-0' : ''}`}>
               <MobileHeader onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)} />
               <Settings />
             </div>

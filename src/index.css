@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Match app shell to dynamic viewport (laptop / browser UI, mobile URL bar) */
+#root {
+  min-height: 100dvh;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
